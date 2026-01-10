@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import MockImage from '../components/MockImage';
-import { apiFetch } from '../api/client';
+import { apiFetch, setToken } from '../api/client';
 
 const recent = ['자전거', '하우스', '공구'];
 
 const ProfileScreen = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -73,7 +75,7 @@ const ProfileScreen = () => {
             { label: '내 정보' },
             { label: '위시리스트', count: 6 },
             { label: '내가 참여한 놀이', count: 6 },
-            { label: '로그아웃' },
+            { label: '로그아웃', action: 'logout' },
           ].map((row) => (
             <div
               key={row.label}
@@ -84,7 +86,17 @@ const ProfileScreen = () => {
                 alignItems: 'center',
                 gap: 8,
                 fontSize: 14,
+                cursor: row.action ? 'pointer' : 'default',
               }}
+              onClick={
+                row.action === 'logout'
+                  ? () => {
+                      setToken('');
+                      setUser(null);
+                      navigate('/login', { replace: true });
+                    }
+                  : undefined
+              }
             >
               <span style={{ width: 18 }}>{row.count ? '♡' : '👤'}</span>
               <span style={{ flex: 1 }}>{row.label}</span>
