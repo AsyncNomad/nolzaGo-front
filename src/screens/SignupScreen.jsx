@@ -29,11 +29,11 @@ const SignupScreen = () => {
               placeItems: 'center',
               position: 'relative',
             }}
-          >
-            <div
-              style={{
-                width: 46,
-                height: 46,
+        >
+          <div
+            style={{
+              width: 46,
+              height: 46,
                 borderRadius: '50%',
                 background: '#f36f72',
                 display: 'grid',
@@ -46,6 +46,9 @@ const SignupScreen = () => {
             </div>
           </div>
         </div>
+        <input className="input" placeholder="아이디를 입력해주세요." style={{ marginTop: 10 }} />
+        <input className="input" placeholder="비밀번호를 입력해주세요." type="password" />
+        <input className="input" placeholder="비밀번호를 재입력해주세요." type="password" />
         <input className="input" placeholder="닉네임을 입력해주세요." style={{ marginTop: 10 }} />
         <button
           className="button white"
@@ -54,10 +57,7 @@ const SignupScreen = () => {
         >
           동네 인증하기
         </button>
-        <div style={{ textAlign: 'center', fontSize: 13, marginTop: -4 }}>현재 나의 위치 설정을 켜주세요</div>
-        <button className="button white" style={{ marginTop: 10 }} onClick={() => navigate('/home')}>
-          입장하기
-        </button>
+        <div style={{ textAlign: 'center', fontSize: 13, marginTop: -4 }}>동네 인증을 완료하면 바로 입장해요.</div>
       </div>
     </div>
   );
