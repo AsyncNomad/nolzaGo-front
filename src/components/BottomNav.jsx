@@ -6,7 +6,7 @@ const navItems = [
   { label: '홈', icon: HomeIcon, path: '/home' },
   { label: '내 주변 놀이', icon: PlusIcon, path: '/map' },
   { label: '채팅', icon: ChatIcon, path: '/chat-list' },
-  { label: '추억', icon: BookmarkIcon, path: null }, // 추후 구현
+  { label: '추억', icon: BookmarkIcon, path: '/memories' },
   { label: '마이페이지', icon: UserIcon, path: '/profile' },
 ];
 

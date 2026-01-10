@@ -287,3 +287,17 @@ a {
   font-weight: 700;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.memory-tile {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  background: linear-gradient(135deg, #f2f2f2, #e2e2e2);
+  border: 1px solid #dadada;
+}

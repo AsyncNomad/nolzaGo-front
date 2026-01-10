@@ -9,6 +9,7 @@ import ChatRoomScreen from './screens/ChatRoomScreen';
 import MapScreen from './screens/MapScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import LocationConfirmScreen from './screens/LocationConfirmScreen';
+import MemoriesScreen from './screens/MemoriesScreen';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
       <Route path="/chat-list" element={<ChatListScreen />} />
       <Route path="/chat-room" element={<ChatRoomScreen />} />
       <Route path="/map" element={<MapScreen />} />
+      <Route path="/memories" element={<MemoriesScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/location-confirm" element={<LocationConfirmScreen />} />
     </Routes>
