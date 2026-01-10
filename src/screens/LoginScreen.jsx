@@ -1,8 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LoginScreen = () => {
   const navigate = useNavigate();
+  const [kakaoReady, setKakaoReady] = useState(false);
+
+  useEffect(() => {
+    const existing = document.getElementById('kakao-sdk');
+    if (existing) {
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        window.Kakao.init(import.meta.env.VITE_KAKAO_APP_KEY);
+      }
+      setKakaoReady(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'kakao-sdk';
+    script.src = 'https://developers.kakao.com/sdk/js/kakao.js';
+    script.async = true;
+    script.onload = () => {
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        window.Kakao.init(import.meta.env.VITE_KAKAO_APP_KEY);
+      }
+      setKakaoReady(true);
+    };
+    document.body.appendChild(script);
+  }, []);
+
+  const handleKakaoLogin = () => {
+    if (!window.Kakao || !kakaoReady) return;
+    window.Kakao.Auth.authorize({
+      redirectUri: window.location.origin,
+    });
+  };
 
   return (
     <div className="mobile-shell coral-panel">
@@ -27,7 +58,8 @@ const LoginScreen = () => {
         <button
           className="button white"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
-          onClick={() => navigate('/home')}
+          onClick={handleKakaoLogin}
+          disabled={!kakaoReady}
         >
           <span
             style={{
