@@ -51,7 +51,7 @@ const HomeScreen = () => {
       <div className="panel" style={{ paddingTop: 6 }}>
         <div className="list-card">
           {posts.map((post) => (
-            <div className="list-item" key={post.title}>
+            <div className="list-item" key={post.title} onClick={() => navigate(`/play/${encodeURIComponent(post.title)}`, { state: post })} style={{ cursor: 'pointer' }}>
               <MockImage label={post.title.slice(0, 4)} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5, position: 'relative', paddingRight: 28 }}>
                 <div style={{ fontWeight: 800, fontSize: 14 }}>

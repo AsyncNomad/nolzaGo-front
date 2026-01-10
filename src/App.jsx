@@ -10,6 +10,7 @@ import MapScreen from './screens/MapScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import LocationConfirmScreen from './screens/LocationConfirmScreen';
 import MemoriesScreen from './screens/MemoriesScreen';
+import PlayDetailScreen from './screens/PlayDetailScreen';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
       <Route path="/memories" element={<MemoriesScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/location-confirm" element={<LocationConfirmScreen />} />
+      <Route path="/play/:id" element={<PlayDetailScreen />} />
     </Routes>
   );
 };
