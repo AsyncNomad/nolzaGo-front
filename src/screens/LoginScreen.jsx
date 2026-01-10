@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch, setToken } from '../api/client';
 
 const LoginScreen = () => {
   const navigate = useNavigate();
   const [kakaoReady, setKakaoReady] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const existing = document.getElementById('kakao-sdk');
@@ -29,9 +31,30 @@ const LoginScreen = () => {
   }, []);
 
   const handleKakaoLogin = () => {
-    if (!window.Kakao || !kakaoReady) return;
-    window.Kakao.Auth.authorize({
-      redirectUri: window.location.origin,
+    if (!window.Kakao || !kakaoReady || loading) return;
+    setLoading(true);
+    window.Kakao.Auth.login({
+      success: async (authObj) => {
+        try {
+          const data = await apiFetch('/api/v1/auth/kakao', {
+            method: 'POST',
+            body: JSON.stringify({ access_token: authObj.access_token }),
+          });
+          if (data?.access_token) {
+            setToken(data.access_token);
+            navigate('/home');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('카카오 로그인에 실패했습니다.');
+        }
+        setLoading(false);
+      },
+      fail: (err) => {
+        console.error(err);
+        alert('카카오 로그인에 실패했습니다.');
+        setLoading(false);
+      },
     });
   };
 
@@ -59,7 +82,7 @@ const LoginScreen = () => {
           className="button white"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
           onClick={handleKakaoLogin}
-          disabled={!kakaoReady}
+          disabled={!kakaoReady || loading}
         >
           <span
             style={{
@@ -76,7 +99,7 @@ const LoginScreen = () => {
           >
             K
           </span>
-          카카오 로그인
+          {loading ? '로그인 중...' : '카카오 로그인'}
         </button>
         <button className="button white" onClick={() => navigate('/signup')}>
           회원가입

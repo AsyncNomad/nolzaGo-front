@@ -1,13 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import MockImage from '../components/MockImage';
+import { apiFetch } from '../api/client';
 
 const recent = ['자전거', '하우스', '공구'];
 
 const ProfileScreen = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    apiFetch('/api/v1/auth/me')
+      .then((data) => setUser(data))
+      .catch(() => setUser(null));
+  }, []);
+
+  const initial = user?.display_name?.[0] || '?';
+
   return (
     <div className="mobile-shell light-panel" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ padding: '16px 16px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              background: '#ffe1e1',
+              overflow: 'hidden',
+              display: 'grid',
+              placeItems: 'center',
+              fontWeight: 900,
+              color: '#f36f72',
+              fontSize: 20,
+            }}
+          >
+            {user?.profile_image_url ? (
+              <img
+                src={user.profile_image_url}
+                alt="프로필"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              initial
+            )}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ fontWeight: 900, fontSize: 16 }}>{user?.display_name || '놀자Go 사용자'}님</div>
+            <div style={{ fontSize: 13, color: '#888' }}>{user?.location_name || '동네 인증 대기'}</div>
+          </div>
+        </div>
         <div style={{ fontWeight: 900, fontSize: 18, marginBottom: 14 }}>참여중인 놀이</div>
         <div
           style={{
