@@ -16,7 +16,7 @@ const ProfileScreen = () => {
       .catch(() => setUser(null));
   }, []);
 
-  const initial = user?.display_name?.[0] || '?';
+  const initial = user?.display_name?.[0] || user?.email?.[0] || '?';
 
   return (
     <div className="mobile-shell light-panel" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

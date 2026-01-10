@@ -6,6 +6,8 @@ const LoginScreen = () => {
   const navigate = useNavigate();
   const [kakaoReady, setKakaoReady] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const existing = document.getElementById('kakao-sdk');
@@ -36,19 +38,31 @@ const LoginScreen = () => {
     window.Kakao.Auth.login({
       success: async (authObj) => {
         try {
+          // 1) 위치 없이 바로 시도 (기존 사용자면 바로 토큰 발급)
           const data = await apiFetch('/api/v1/auth/kakao', {
             method: 'POST',
-            body: JSON.stringify({ access_token: authObj.access_token }),
+            body: JSON.stringify({
+              access_token: authObj.access_token,
+              location_name: null,
+            }),
           });
           if (data?.access_token) {
             setToken(data.access_token);
             navigate('/home');
+            setLoading(false);
+            return;
           }
+          throw new Error('kakao login needs location');
         } catch (err) {
-          console.error(err);
-          alert('카카오 로그인에 실패했습니다.');
+          // 2) 새 사용자이거나 위치 없는 경우 → 동네 인증으로 이동
+          navigate('/location-confirm', {
+            state: {
+              signupType: 'kakao',
+              kakaoToken: authObj.access_token,
+            },
+          });
+          setLoading(false);
         }
-        setLoading(false);
       },
       fail: (err) => {
         console.error(err);
@@ -73,9 +87,41 @@ const LoginScreen = () => {
           <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1.2 }}>놀자Go</div>
           <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>손쉬운 우리동네 놀이팟 모집 서비스</div>
         </div>
-        <input className="input" placeholder="아이디를 입력해주세요." />
-        <input className="input" placeholder="비밀번호를 입력해주세요." type="password" />
-        <button className="button white" onClick={() => navigate('/home')}>
+        <input
+          className="input"
+          placeholder="아이디(이메일)를 입력해주세요."
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          className="input"
+          placeholder="비밀번호를 입력해주세요."
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button
+          className="button white"
+          onClick={async () => {
+            try {
+              const body = new URLSearchParams();
+              body.append('username', email);
+              body.append('password', password);
+              const res = await fetch('/api/v1/auth/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body,
+              });
+              if (!res.ok) throw new Error('로그인 실패');
+              const data = await res.json();
+              setToken(data.access_token);
+              navigate('/home');
+            } catch (err) {
+              console.error(err);
+              alert('아이디 또는 비밀번호를 확인해주세요.');
+            }
+          }}
+        >
           로그인
         </button>
         <button

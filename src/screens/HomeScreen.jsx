@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import MockImage from '../components/MockImage';
 import { HeartIcon, LocationIcon } from '../assets/icons';
+import { apiFetch } from '../api/client';
 
 const posts = [
   {
@@ -44,10 +45,27 @@ const posts = [
 
 const HomeScreen = () => {
   const navigate = useNavigate();
+  const [locationName, setLocationName] = useState('동네 인증 대기');
+
+  useEffect(() => {
+    let mounted = true;
+    apiFetch('/api/v1/auth/me')
+      .then((user) => {
+        if (!mounted) return;
+        setLocationName(user?.location_name || '동네 인증 대기');
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setLocationName('동네 인증 대기');
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="mobile-shell light-panel" style={{ paddingBottom: 90, position: 'relative' }}>
-      <div style={{ padding: '18px 16px 8px', fontSize: 20, fontWeight: 900 }}>유성구 온천2동</div>
+      <div style={{ padding: '18px 16px 8px', fontSize: 20, fontWeight: 900 }}>{locationName}</div>
       <div className="panel" style={{ paddingTop: 6 }}>
         <div className="list-card">
           {posts.map((post) => (
