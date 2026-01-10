@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LocationIcon } from '../assets/icons';
-import BottomNav from '../components/BottomNav';
+import { BackIcon, LocationIcon } from '../assets/icons';
 
 const LocationConfirmScreen = () => {
   const navigate = useNavigate();
@@ -9,6 +8,19 @@ const LocationConfirmScreen = () => {
   return (
     <div className="mobile-shell light-panel" style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            padding: 4,
+            cursor: 'pointer',
+            marginRight: 4,
+          }}
+          aria-label="뒤로가기"
+        >
+          <BackIcon size={22} color="#2b2b2b" />
+        </button>
         <span style={{ fontSize: 13, color: '#a6a6a6', fontWeight: 700 }}>동네 인증 페이지</span>
       </div>
       <div className="map-panel" style={{ flex: 1, margin: '0 14px', borderRadius: 18 }}>
@@ -43,7 +55,7 @@ const LocationConfirmScreen = () => {
             fontWeight: 800,
           }}
         >
-          유성구 온천2동으로 설정할까요?
+          유성구 온천2동으로 설정할게요.
         </div>
         <button
           className="button"
@@ -58,7 +70,6 @@ const LocationConfirmScreen = () => {
           좋아요!
         </button>
       </div>
-      <BottomNav />
     </div>
   );
 };
