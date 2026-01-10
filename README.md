@@ -10,23 +10,23 @@
 지금 내 주변에서 어떤 놀이가 열리고 있는지 한눈에 보고, 원하면 바로 놀이팟을 만들고 참여할 수 있어요.
 
 - **메인 화면**  
-  <img src="./assets/main.png" alt="main" width="50%" />  
+  <img src="./assets/main.png" alt="main" width="251" height="536" />  
   동네별 놀이팟을 리스트로 확인하고, 글쓰기 버튼으로 바로 모집글을 올릴 수 있어요. 지금 가까운 곳에서 실제로 진행 중이거나 곧 시작될 놀이에 집중해요.
 
 - **놀이팟 등록**  
-  <img src="./assets/register.png" alt="register" width="50%" />  
+  <img src="./assets/register.png" alt="register" width="246" height="530" />  
   제목·일시·장소·내용·사진을 한 번에 입력해 약속 정보가 분명한 모집글을 만들 수 있어요.
 
 - **주변 놀이팟 찾기**  
-  <img src="./assets/location.png" alt="location" width="50%" />  
+  <img src="./assets/location.png" alt="location" width="248" height="532" />  
   지도에서 내 위치를 기준으로 주변 놀이팟을 바로 확인할 수 있어요. “같은 동네”가 아니라 “지금 만날 수 있는 거리”를 기준으로 보여줘요.
 
 - **채팅방**  
-  <img src="./assets/chat.png" alt="chat" width="50%" />  
+  <img src="./assets/chat.png" alt="chat" width="246" height="530" />  
   모집글마다 전용 단체 채팅방이 자동으로 만들어져요. 이동·시간 변경 같은 상황도 실시간으로 공유할 수 있어요.
 
 - **추억**  
-  <img src="./assets/reels.png" alt="reels" width="50%" />  
+  <img src="./assets/reels.png" alt="reels" width="246" height="527" />  
   함께한 놀이의 사진·영상을 모아보고, 놀이 경험이 일회성으로 끝나지 않도록 기록해요.
 
 ---
