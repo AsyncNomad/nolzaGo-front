@@ -10,6 +10,7 @@ import MapScreen from './screens/MapScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import LocationConfirmScreen from './screens/LocationConfirmScreen';
 import MemoriesScreen from './screens/MemoriesScreen';
+import MemoriesCreateScreen from './screens/MemoriesCreateScreen';
 import PlayDetailScreen from './screens/PlayDetailScreen';
 
 const App = () => {
@@ -24,6 +25,7 @@ const App = () => {
       <Route path="/chat-room" element={<ChatRoomScreen />} />
       <Route path="/map" element={<MapScreen />} />
       <Route path="/memories" element={<MemoriesScreen />} />
+      <Route path="/memories/create" element={<MemoriesCreateScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/location-confirm" element={<LocationConfirmScreen />} />
       <Route path="/play/:id" element={<PlayDetailScreen />} />
