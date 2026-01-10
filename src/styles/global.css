@@ -205,6 +205,18 @@ a {
   border-bottom: none;
 }
 
+.like-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #d34e55;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .item-meta {
   font-size: 12px;
   color: #848484;

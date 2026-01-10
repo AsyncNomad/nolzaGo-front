@@ -76,3 +76,14 @@ export const LocationIcon = ({ size = 18, color = '#f36f72' }) => (
     <circle cx="12" cy="9.5" r="2.5" stroke={color} strokeWidth="2" />
   </svg>
 );
+
+export const HeartIcon = ({ size = 20, color = '#f36f72' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M12 20s-7-4.5-7-10a4.5 4.5 0 0 1 8-2.6A4.5 4.5 0 0 1 19 10c0 5.5-7 10-7 10z"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

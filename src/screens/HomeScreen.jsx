@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import MockImage from '../components/MockImage';
-import { LocationIcon } from '../assets/icons';
+import { HeartIcon, LocationIcon } from '../assets/icons';
 
 const posts = [
   {
@@ -10,30 +10,35 @@ const posts = [
     location: '카이스트 스포츠컴플렉스 앞',
     day: '오늘',
     people: '48/50',
+    likes: 11,
   },
   {
     title: '경도해요',
     location: '카이스트 오리연못 앞',
     day: '오늘',
     people: '28/30',
+    likes: 6,
   },
   {
     title: '지탈하고싶어요.',
     location: '카이스트 정문 앞',
     day: '내일',
     people: '20/28',
+    likes: 9,
   },
   {
     title: '좀비게임잼⚡',
     location: '까치집회',
     day: '오늘',
     people: '13/30',
+    likes: 23,
   },
   {
     title: '무궁화꽃, 윷알뺑 할실 분~~',
     location: '남대전 동사무소 앞 공원',
     day: '내일',
     people: '58/60',
+    likes: 13,
   },
 ];
 
@@ -48,8 +53,14 @@ const HomeScreen = () => {
           {posts.map((post) => (
             <div className="list-item" key={post.title}>
               <MockImage label={post.title.slice(0, 4)} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <div style={{ fontWeight: 800, fontSize: 14 }}>{post.title}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, position: 'relative', paddingRight: 28 }}>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>
+                  {post.title}
+                  <span className="like-badge">
+                    <HeartIcon size={18} />
+                    <span>{post.likes}</span>
+                  </span>
+                </div>
                 <div className="item-meta">
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <LocationIcon size={14} color="#c75f63" />
