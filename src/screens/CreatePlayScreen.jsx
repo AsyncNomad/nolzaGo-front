@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
-import { apiFetch } from '../api/client';
+import { apiFetch, getToken } from '../api/client';
 import { loadKakaoSdk } from '../utils/kakao';
+import ImagePreview from '../components/ImagePreview';
 
 const minuteOptions = ['00', '10', '20', '30', '40', '50'];
 
@@ -19,6 +20,7 @@ const CreatePlayScreen = () => {
   const [maxParticipants, setMaxParticipants] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   const [mapOpen, setMapOpen] = useState(false);
   const mapRef = useRef(null);
@@ -44,8 +46,9 @@ const CreatePlayScreen = () => {
       latitude &&
       longitude &&
       maxValid &&
+      imageUrl &&
       !saving,
-    [title, date, hour, minute, locationName, latitude, longitude, maxValid, saving],
+    [title, date, hour, minute, locationName, latitude, longitude, maxValid, imageUrl, saving],
   );
 
   const resetMarkers = () => {
@@ -133,6 +136,7 @@ const CreatePlayScreen = () => {
           game_type: '모임',
           max_participants: Number(maxParticipants),
           start_time: startIso,
+          image_url: imageUrl,
         }),
       });
       alert('모집글이 등록되었어요.');
@@ -228,6 +232,41 @@ const CreatePlayScreen = () => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+
+        <div className="field-label" style={{ color: '#d56563' }}>
+          사진 업로드
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setSaving(true);
+              try {
+                const form = new FormData();
+                form.append('file', file);
+                const res = await fetch('/api/v1/uploads/image', {
+                  method: 'POST',
+                  body: form,
+                  headers: {
+                    Authorization: getToken() ? `Bearer ${getToken()}` : undefined,
+                  },
+                });
+                if (!res.ok) throw new Error('업로드 실패');
+                const data = await res.json();
+                setImageUrl(data.url);
+              } catch (err) {
+                console.error(err);
+                alert('이미지 업로드에 실패했습니다.');
+              } finally {
+                setSaving(false);
+              }
+            }}
+          />
+          <ImagePreview url={imageUrl} size={72} corner={10} />
+        </div>
 
         {error ? (
           <div style={{ color: '#c75f63', fontWeight: 700, fontSize: 13, marginTop: 4 }}>{error}</div>

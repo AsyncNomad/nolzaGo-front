@@ -112,19 +112,27 @@ const PlayDetailScreen = () => {
             </button>
           </div>
         ) : null}
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(135deg, #ffe1e1, #f66f72)',
-            display: 'grid',
-            placeItems: 'center',
-            fontWeight: 900,
-            fontSize: 22,
-          }}
-        >
-          {post.title?.slice(0, 6) || '놀이팟'}
-        </div>
+        {post.image_url ? (
+          <img
+            src={post.image_url}
+            alt={post.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(135deg, #ffe1e1, #f66f72)',
+              display: 'grid',
+              placeItems: 'center',
+              fontWeight: 900,
+              fontSize: 22,
+            }}
+          >
+            {post.title?.slice(0, 6) || '놀이팟'}
+          </div>
+        )}
       </div>
 
       <div style={{ padding: '18px 16px 12px', borderBottom: '1px solid #ededed' }}>

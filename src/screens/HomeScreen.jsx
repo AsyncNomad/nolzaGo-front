@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import MockImage from '../components/MockImage';
+import ImagePreview from '../components/ImagePreview';
 import { HeartIcon, LocationIcon } from '../assets/icons';
 import { apiFetch } from '../api/client';
 import { loadWishlist, saveWishlist, isWishlisted } from '../api/wishlist';
@@ -60,7 +61,11 @@ const HomeScreen = () => {
                 onClick={() => navigate(`/play/${encodeURIComponent(post.title)}`, { state: post })}
                 style={{ cursor: 'pointer' }}
               >
-                <MockImage label={post.title.slice(0, 4)} />
+                {post.image_url ? (
+                  <ImagePreview url={post.image_url} size={72} corner={10} />
+                ) : (
+                  <MockImage label={post.title.slice(0, 4)} />
+                )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5, position: 'relative' }}>
                   <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 2 }}>{post.title}</div>
                   <div className="item-meta">
