@@ -24,7 +24,7 @@ const MapScreen = () => {
         map = new kakao.maps.Map(mapRef.current, {
           center: defaultCenter,
           level: 4,
-        
+        });
 
         const placeMeMarker = (center) => {
           // Custom pin using overlay so it always renders (data URI might be blocked on some setups)
