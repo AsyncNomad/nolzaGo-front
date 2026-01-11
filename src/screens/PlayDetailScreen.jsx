@@ -8,12 +8,22 @@ const PlayDetailScreen = () => {
 
   const post = state || {
     title: decodeURIComponent(id || ''),
-    location: '유성구 온천2동',
-    day: '오늘',
-    people: '8/15',
-    likes: 0,
-    desc: '참여자가 선택되지 않았습니다.',
+    location_name: '유성구 온천2동',
+    start_time: null,
+    max_participants: 0,
+    participants_count: 0,
+    like_count: 0,
+    status: '모집 중',
+    description: '참여자가 선택되지 않았습니다.',
+    owner: null,
   };
+
+  const startText = post.start_time
+    ? new Date(post.start_time).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : '일정 미정';
+  const statusText = post.status || '모집 중';
+  const peopleText = `${Math.max(1, post.participants_count ?? 0)}/${post.max_participants ?? 0}`;
+  const locationText = post.location_name || post.location || '장소 미정';
 
   return (
     <div className="mobile-shell" style={{ background: 'white', color: '#2b2b2b', display: 'flex', flexDirection: 'column' }}>
@@ -67,23 +77,48 @@ const PlayDetailScreen = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontWeight: 800, fontSize: 16 }}>{post.title}</div>
-            <div style={{ fontSize: 13, color: '#6f6f6f', marginTop: 4 }}>{post.location}</div>
+            <div style={{ fontSize: 13, color: '#6f6f6f', marginTop: 4 }}>{locationText}</div>
           </div>
-          <div style={{ textAlign: 'right', fontSize: 13, color: '#f36f72', fontWeight: 800 }}>{post.people} 모집</div>
+          <div style={{ textAlign: 'right', fontSize: 13, color: '#f36f72', fontWeight: 800 }}>
+            {peopleText} 모집<br />
+            <span style={{ color: '#888', fontSize: 12 }}>{statusText}</span>
+          </div>
         </div>
         <div style={{ marginTop: 12, fontSize: 13, color: '#4a4a4a' }}>
-          <div style={{ marginBottom: 6 }}>- 일정: {post.day}</div>
-          <div>- 장소: {post.location}</div>
+          <div style={{ marginBottom: 6 }}>- 일정: {startText}</div>
+          <div>- 장소: {locationText}</div>
         </div>
       </div>
 
       <div style={{ padding: '16px', flex: 1, background: 'white', color: '#2b2b2b' }}>
-        <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 10 }}>놀이 안내</div>
-        <div style={{ lineHeight: 1.5, fontSize: 13, color: '#4a4a4a' }}>
-          {post.desc ||
-            `- 규칙: 서로 존중하며 즐겁게!
-- 난이도: 누구나 참여 가능
-- 준비물: 편한 복장과 텐션`}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+          <div
+            style={{
+              width: 46,
+              height: 46,
+              borderRadius: '50%',
+              background: '#f5f5f5',
+              display: 'grid',
+              placeItems: 'center',
+              fontWeight: 800,
+              color: '#f36f72',
+              fontSize: 18,
+            }}
+          >
+            {post.owner?.profile_image_url ? (
+              <img
+                src={post.owner.profile_image_url}
+                alt="프로필"
+                style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+              />
+            ) : (
+              (post.owner?.display_name || '게스트').slice(0, 1)
+            )}
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700 }}>{post.owner?.display_name || '게스트'}</div>
+        </div>
+        <div style={{ lineHeight: 1.5, fontSize: 13, color: '#4a4a4a', whiteSpace: 'pre-line' }}>
+          {post.description || '모집 내용이 없습니다.'}
         </div>
       </div>
 

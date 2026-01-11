@@ -11,6 +11,7 @@ const MapScreen = () => {
   useEffect(() => {
     let map;
     let markers = [];
+    let userMarker = null;
 
     const setupMap = async () => {
       try {
@@ -23,7 +24,7 @@ const MapScreen = () => {
         map = new kakao.maps.Map(mapRef.current, {
           center: defaultCenter,
           level: 4,
-        });
+        
 
         const placeMeMarker = (center) => {
           // Custom pin using overlay so it always renders (data URI might be blocked on some setups)
@@ -79,11 +80,14 @@ const MapScreen = () => {
               map.setCenter(center);
               map.setLevel(4);
               placeMeMarker(center);
+              userMarker = markers.pop() || userMarker; // keep user marker separately
               applyPosts(posts, center);
+              if (userMarker) userMarker.setMap(map);
               setMapReady(true);
             },
             () => {
               placeMeMarker(defaultCenter);
+              userMarker = markers.pop() || userMarker;
               applyPosts(posts, defaultCenter);
               setMapReady(true);
             },
@@ -91,6 +95,7 @@ const MapScreen = () => {
           );
         } else {
           placeMeMarker(defaultCenter);
+          userMarker = markers.pop() || userMarker;
           applyPosts(posts, defaultCenter);
           setMapReady(true);
         }
@@ -108,6 +113,7 @@ const MapScreen = () => {
         map = null;
       }
       markers = [];
+      userMarker = null;
     };
   }, []);
 

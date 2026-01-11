@@ -28,7 +28,7 @@ const MemoriesScreen = () => {
         aria-label="추억 작성"
         onClick={() => navigate('/memories/create')}
       >
-        ✏️
+        +
       </button>
       <div className="memory-grid">
         {placeholders.map((_, idx) => (

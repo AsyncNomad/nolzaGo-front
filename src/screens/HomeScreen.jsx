@@ -5,59 +5,32 @@ import MockImage from '../components/MockImage';
 import { HeartIcon, LocationIcon } from '../assets/icons';
 import { apiFetch } from '../api/client';
 
-const posts = [
-  {
-    title: '경찰과 도둑 모집합니다~!!✨✨',
-    location: '카이스트 스포츠컴플렉스 앞',
-    day: '오늘',
-    people: '48/50',
-    likes: 11,
-  },
-  {
-    title: '경도해요',
-    location: '카이스트 오리연못 앞',
-    day: '오늘',
-    people: '28/30',
-    likes: 6,
-  },
-  {
-    title: '지탈하고싶어요.',
-    location: '카이스트 정문 앞',
-    day: '내일',
-    people: '20/28',
-    likes: 9,
-  },
-  {
-    title: '좀비게임잼⚡',
-    location: '까치집회',
-    day: '오늘',
-    people: '13/30',
-    likes: 23,
-  },
-  {
-    title: '무궁화꽃, 윷알뺑 할실 분~~',
-    location: '남대전 동사무소 앞 공원',
-    day: '내일',
-    people: '58/60',
-    likes: 13,
-  },
-];
-
 const HomeScreen = () => {
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState('동네 인증 대기');
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let mounted = true;
-    apiFetch('/api/v1/auth/me')
-      .then((user) => {
+    const load = async () => {
+      try {
+        const user = await apiFetch('/api/v1/auth/me');
         if (!mounted) return;
         setLocationName(user?.location_name || '동네 인증 대기');
-      })
-      .catch(() => {
+        const fetched = await apiFetch('/api/v1/posts');
         if (!mounted) return;
-        setLocationName('동네 인증 대기');
-      });
+        setPosts(fetched || []);
+      } catch (err) {
+        console.error(err);
+        if (!mounted) return;
+        setError('게시글을 불러오지 못했습니다.');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    load();
     return () => {
       mounted = false;
     };
@@ -67,34 +40,50 @@ const HomeScreen = () => {
     <div className="mobile-shell light-panel" style={{ paddingBottom: 90, position: 'relative' }}>
       <div style={{ padding: '18px 16px 8px', fontSize: 20, fontWeight: 900 }}>{locationName}</div>
       <div className="panel" style={{ paddingTop: 6 }}>
-        <div className="list-card">
-          {posts.map((post) => (
-            <div className="list-item" key={post.title} onClick={() => navigate(`/play/${encodeURIComponent(post.title)}`, { state: post })} style={{ cursor: 'pointer' }}>
-              <MockImage label={post.title.slice(0, 4)} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, position: 'relative', paddingRight: 28 }}>
-                <div style={{ fontWeight: 800, fontSize: 14 }}>
-                  {post.title}
-                  <span className="like-badge">
-                    <HeartIcon size={18} />
-                    <span>{post.likes}</span>
-                  </span>
-                </div>
-                <div className="item-meta">
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <LocationIcon size={14} color="#c75f63" />
-                    {post.location}
-                  </span>
-                </div>
-                <div className="item-meta">
-                  <span className="pill" style={{ borderColor: '#f36f72', color: '#f36f72' }}>
-                    {post.people}
-                  </span>
-                  <span>{post.day}</span>
+        {loading ? (
+          <div style={{ padding: '20px 12px', textAlign: 'center', color: '#888' }}>불러오는 중...</div>
+        ) : error ? (
+          <div style={{ padding: '20px 12px', textAlign: 'center', color: '#c75f63', fontWeight: 700 }}>{error}</div>
+        ) : posts.length === 0 ? (
+          <div style={{ padding: '20px 12px', textAlign: 'center', color: '#888' }}>아직 이 동네에 모집글이 없어요.</div>
+        ) : (
+          <div className="list-card">
+            {posts.map((post) => (
+              <div
+                className="list-item"
+                key={post.id || post.title}
+                onClick={() => navigate(`/play/${encodeURIComponent(post.title)}`, { state: post })}
+                style={{ cursor: 'pointer' }}
+              >
+                <MockImage label={post.title.slice(0, 4)} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, position: 'relative' }}>
+                  <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 2 }}>{post.title}</div>
+                  <div className="item-meta">
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <LocationIcon size={14} color="#c75f63" />
+                      {post.location_name}
+                    </span>
+                  </div>
+                  <div
+                    className="item-meta"
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span className="pill" style={{ borderColor: '#f36f72', color: '#f36f72' }}>
+                        {Math.max(1, post.participants_count ?? 0)}/{post.max_participants ?? 0}
+                      </span>
+                      <span>{post.start_time ? new Date(post.start_time).toLocaleDateString('ko-KR') : '오늘'}</span>
+                    </div>
+                    <span className="like-badge">
+                      <HeartIcon size={18} />
+                      <span>{post.like_count ?? 0}</span>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <button
@@ -109,13 +98,13 @@ const HomeScreen = () => {
           border: 'none',
           background: '#f36f72',
           color: 'white',
-          fontSize: 28,
+          fontSize: 32,
           boxShadow: '0 12px 18px rgba(0,0,0,0.18)',
           cursor: 'pointer',
         }}
         aria-label="글쓰기"
       >
-        ✏️
+        +
       </button>
 
       <BottomNav />
