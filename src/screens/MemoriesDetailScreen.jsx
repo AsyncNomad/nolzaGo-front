@@ -1,24 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { apiFetch } from '../api/client';
 
 const MemoriesDetailScreen = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams();
 
-  const memory = state || {
-    id,
-    title: decodeURIComponent(id || ''),
-    content: '추억 내용이 없습니다.',
-    image_url: null,
-    play_title: '참여한 놀이',
-    author_name: 'user',
-    created_at: null,
-  };
+  const [memory, setMemory] = useState(
+    state || {
+      id,
+      title: '추억',
+      content: '',
+      image_url: null,
+      location_name: null,
+      owner: null,
+      created_at: null,
+    },
+  );
+  const [loading, setLoading] = useState(!state);
+
+  useEffect(() => {
+    let mounted = true;
+    if (state || !id) return;
+    const load = async () => {
+      try {
+        const data = await apiFetch(`/api/v1/memories/${id}`);
+        if (!mounted) return;
+        setMemory(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [id, state]);
 
   const createdText = memory.created_at
     ? new Date(memory.created_at).toLocaleDateString('ko-KR')
     : '날짜 미정';
+  const authorName = memory.owner?.display_name || 'user';
 
   return (
     <div className="mobile-shell" style={{ background: 'white', color: '#2b2b2b', display: 'flex', flexDirection: 'column' }}>
@@ -68,7 +93,9 @@ const MemoriesDetailScreen = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontWeight: 800, fontSize: 16 }}>{memory.title || '추억 제목'}</div>
-            <div style={{ fontSize: 13, color: '#6f6f6f', marginTop: 4 }}>{memory.play_title || '참여한 놀이'}</div>
+            <div style={{ fontSize: 13, color: '#6f6f6f', marginTop: 4 }}>
+              {memory.location_name || '기록된 장소 없음'}
+            </div>
           </div>
           <div style={{ textAlign: 'right', fontSize: 12, color: '#888' }}>{createdText}</div>
         </div>
@@ -89,13 +116,17 @@ const MemoriesDetailScreen = () => {
               fontSize: 18,
             }}
           >
-            {(memory.author_name || 'U').slice(0, 1)}
+            {authorName.slice(0, 1)}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 700 }}>{memory.author_name || 'user'}</div>
+          <div style={{ fontSize: 14, fontWeight: 700 }}>{authorName}</div>
         </div>
-        <div style={{ lineHeight: 1.6, fontSize: 13, color: '#4a4a4a', whiteSpace: 'pre-line' }}>
-          {memory.content || '추억 내용이 없습니다.'}
-        </div>
+        {loading ? (
+          <div style={{ padding: 10, color: '#888' }}>불러오는 중...</div>
+        ) : (
+          <div style={{ lineHeight: 1.6, fontSize: 13, color: '#4a4a4a', whiteSpace: 'pre-line' }}>
+            {memory.content || '추억 내용이 없습니다.'}
+          </div>
+        )}
       </div>
     </div>
   );

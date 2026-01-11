@@ -10,25 +10,39 @@ https://nolzago.sbserver.store
 놀자Go는 **동네에서 함께 놀 사람을 가장 빠르게 모으는 서비스**예요.  
 지금 내 주변에서 어떤 놀이가 열리고 있는지 한눈에 보고, 원하면 바로 놀이팟을 만들고 참여할 수 있어요.
 
-- **메인 화면**  
-  <img src="./assets/main.png" alt="main" width="251" height="536" />  
-  동네별 놀이팟을 리스트로 확인하고, 글쓰기 버튼으로 바로 모집글을 올릴 수 있어요. 지금 가까운 곳에서 실제로 진행 중이거나 곧 시작될 놀이에 집중해요.
+### 참여할 놀이팟을 선택하고, 내가 직접 모집할 수도 있어요.
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <img src="./assets/v2/main.jpg" alt="main" width="230" height="500" />
+    <img src="./assets/v2/play_post.jpg" alt="register" width="230" height="500" />
+    <img src="./assets/v2/register_post.jpg" alt="register" width="230" height="500" />
+  </div>  
+  동네별 놀이팟을 리스트로 확인하고, 글쓰기 버튼으로 바로 모집글을 올릴 수 있어요. 제목·일시·장소·내용·사진을 한 번에 입력해 약속 정보가 분명한 모집글을 만들 수 있어요.
 
-- **놀이팟 등록**  
-  <img src="./assets/register.png" alt="register" width="246" height="530" />  
-  제목·일시·장소·내용·사진을 한 번에 입력해 약속 정보가 분명한 모집글을 만들 수 있어요.
+### 주변의 놀이팟을 빠르게 확인해요.
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <img src="./assets/v2/nearby.jpg" alt="location" width="230" height="500" />
+  </div>  
+  지도에서 내 위치를 기준으로 주변의 놀이팟 정보를 시각적으로 빠르게 확인할 수 있어요.
 
-- **주변 놀이팟 찾기**  
-  <img src="./assets/location.png" alt="location" width="248" height="532" />  
-  지도에서 내 위치를 기준으로 주변 놀이팟을 바로 확인할 수 있어요. “같은 동네”가 아니라 “지금 만날 수 있는 거리”를 기준으로 보여줘요.
+### 놀이에 특화된 채팅방, 늦게 들어와도 소외되지 않아요.
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <img src="./assets/v2/chatlist.jpg" alt="chat" width="230" height="500" />
+    <img src="./assets/v2/chat.jpg" alt="chat" width="230" height="500" />
+  </div>  
+  모집글마다 전용 단체 채팅방이 자동으로 만들어져요. 이동·시간 변경 같은 상황도 실시간으로 공유할 수 있어요. 늦게 참여하더라도 이전 채팅 내용을 모두 볼 수 있고, 놀자Go의 내용 요약 마스터 깐부 AI가 이전 채팅 내용을 3줄 요약해줘요.
 
-- **채팅방**  
-  <img src="./assets/chat.png" alt="chat" width="246" height="530" />  
-  모집글마다 전용 단체 채팅방이 자동으로 만들어져요. 이동·시간 변경 같은 상황도 실시간으로 공유할 수 있어요.
-
-- **추억**  
-  <img src="./assets/reels.png" alt="reels" width="246" height="527" />  
+### 놀이가 끝나도 추억은 계속해서 남아요.
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <img src="./assets/v2/memory.jpg" alt="reels" width="230" height="500" />
+    <img src="./assets/v2/memory_post.jpg" alt="reels" width="230" height="500" />
+  </div>  
   함께한 놀이의 사진·영상을 모아보고, 놀이 경험이 일회성으로 끝나지 않도록 기록해요.
+
+### 놀이에 참여하는 것을 까먹지 않도록 알려줘요.
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <img src="./assets/v2/mypage.jpg" alt="reels" width="230" height="500" />
+  </div>  
+  마이페이지에서 참여를 고민하는 놀이팟의 모집글을 위시리스트에 추가할 수 있어요. 참여가 예정된 놀이의 시작을 알림으로 알려줘요.
 
 ---
 
