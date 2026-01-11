@@ -12,6 +12,7 @@ import LocationConfirmScreen from './screens/LocationConfirmScreen';
 import MemoriesScreen from './screens/MemoriesScreen';
 import MemoriesCreateScreen from './screens/MemoriesCreateScreen';
 import PlayDetailScreen from './screens/PlayDetailScreen';
+import EditPlayScreen from './screens/EditPlayScreen';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
       <Route path="/signup" element={<SignupScreen />} />
       <Route path="/home" element={<HomeScreen />} />
       <Route path="/create" element={<CreatePlayScreen />} />
+      <Route path="/edit/:postId" element={<EditPlayScreen />} />
       <Route path="/chat-list" element={<ChatListScreen />} />
       <Route path="/chat-room" element={<ChatRoomScreen />} />
       <Route path="/map" element={<MapScreen />} />

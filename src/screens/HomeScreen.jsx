@@ -4,6 +4,7 @@ import BottomNav from '../components/BottomNav';
 import MockImage from '../components/MockImage';
 import { HeartIcon, LocationIcon } from '../assets/icons';
 import { apiFetch } from '../api/client';
+import { loadWishlist, saveWishlist, isWishlisted } from '../api/wishlist';
 
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [wishlist, setWishlist] = useState([]);
 
   useEffect(() => {
     let mounted = true;
@@ -22,6 +24,9 @@ const HomeScreen = () => {
         const fetched = await apiFetch('/api/v1/posts');
         if (!mounted) return;
         setPosts(fetched || []);
+        // 서버의 is_liked 정보를 기준으로 위시리스트 동기화
+        const serverLiked = (fetched || []).filter((p) => p.is_liked);
+        setWishlist(serverLiked);
       } catch (err) {
         console.error(err);
         if (!mounted) return;
@@ -69,15 +74,36 @@ const HomeScreen = () => {
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span className="pill" style={{ borderColor: '#f36f72', color: '#f36f72' }}>
-                        {Math.max(1, post.participants_count ?? 0)}/{post.max_participants ?? 0}
-                      </span>
-                      <span>{post.start_time ? new Date(post.start_time).toLocaleDateString('ko-KR') : '오늘'}</span>
-                    </div>
-                    <span className="like-badge">
-                      <HeartIcon size={18} />
-                      <span>{post.like_count ?? 0}</span>
+                    <span className="pill" style={{ borderColor: '#f36f72', color: '#f36f72' }}>
+                      {Math.max(1, post.participants_count ?? 0)}/{post.max_participants ?? 0}
                     </span>
+                    <span>{post.start_time ? new Date(post.start_time).toLocaleDateString('ko-KR') : '오늘'}</span>
+                  </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!post.id) return;
+                        const currentlyLiked = isWishlisted(post.id);
+                        apiFetch(`/api/v1/posts/${post.id}/like`, { method: 'POST' })
+                          .then((res) => {
+                            setPosts((prev) =>
+                              prev.map((p) => (p.id === post.id ? { ...p, like_count: res.like_count } : p)),
+                            );
+                        setWishlist((prev) => {
+                          const filtered = prev.filter((p) => p.id !== post.id);
+                          const next = res.is_liked ? [...filtered, { ...post, like_count: res.like_count }] : filtered;
+                          saveWishlist(next);
+                          return next;
+                        });
+                      })
+                      .catch((err) => console.error(err));
+                      }}
+                      className="like-badge"
+                      style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                    >
+                      <HeartIcon size={18} color={isWishlisted(post.id) ? '#f36f72' : undefined} />
+                      <span>{post.like_count ?? 0}</span>
+                    </button>
                   </div>
                 </div>
               </div>

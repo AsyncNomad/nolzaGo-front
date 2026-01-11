@@ -3,17 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import MockImage from '../components/MockImage';
 import { apiFetch, setToken } from '../api/client';
+import { loadWishlist, saveWishlist, isWishlisted } from '../api/wishlist';
 
 const recent = ['자전거', '하우스', '공구'];
 
 const ProfileScreen = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [wishlist, setWishlist] = useState([]);
 
   useEffect(() => {
     apiFetch('/api/v1/auth/me')
       .then((data) => setUser(data))
       .catch(() => setUser(null));
+    setWishlist(loadWishlist());
   }, []);
 
   const initial = user?.display_name?.[0] || user?.email?.[0] || '?';
@@ -70,11 +73,78 @@ const ProfileScreen = () => {
             <MockImage key={item} label={item} size={90} corner={10} />
           ))}
         </div>
-        <div style={{ marginTop: 14, borderTop: '1px solid #ededed' }}>
+        <div style={{ marginTop: 14, borderTop: '1px solid #ededed', paddingTop: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ width: 18 }}>♡</span>
+            <span style={{ flex: 1, fontWeight: 700 }}>위시리스트</span>
+            <span style={{ color: '#d65c63', fontWeight: 800 }}>({wishlist.length})</span>
+          </div>
+          {wishlist.length === 0 ? (
+            <div style={{ padding: '8px 4px', color: '#888', fontSize: 13 }}>아직 담은 놀이가 없어요.</div>
+          ) : (
+            wishlist.map((item) => (
+              <div
+                key={item.id}
+                style={{
+                  padding: '10px 4px',
+                  borderBottom: '1px solid #ededed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  cursor: 'pointer',
+                }}
+                onClick={() => navigate(`/play/${encodeURIComponent(item.title)}`, { state: item })}
+              >
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 12,
+                    background: '#f9f9f9',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontWeight: 800,
+                    color: '#f36f72',
+                  }}
+                >
+                  {item.title?.slice(0, 2) || '놀이'}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 14 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: '#777' }}>{item.location_name || '장소 미정'}</div>
+                </div>
+                <button
+                  style={{
+                    border: '1px solid #f36f72',
+                    background: isWishlisted(item.id) ? '#f36f72' : 'white',
+                    color: isWishlisted(item.id) ? 'white' : '#f36f72',
+                    borderRadius: 10,
+                    padding: '6px 10px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!item.id) return;
+                    apiFetch(`/api/v1/posts/${item.id}/like`, { method: 'POST' })
+                      .catch((err) => console.error(err))
+                      .finally(() => {
+                        const next = loadWishlist().filter((p) => p.id !== item.id);
+                        saveWishlist(next);
+                        setWishlist(next);
+                      });
+                  }}
+                >
+                  ♥
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div style={{ marginTop: 12, borderTop: '1px solid #ededed' }}>
           {[
-            { label: '내 정보' },
-            { label: '위시리스트', count: 6 },
             { label: '내가 참여한 놀이', count: 6 },
+            { label: '내 정보' },
             { label: '로그아웃', action: 'logout' },
           ].map((row) => (
             <div

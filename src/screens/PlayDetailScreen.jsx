@@ -1,5 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { isWishlisted, loadWishlist, saveWishlist } from '../api/wishlist';
+import { apiFetch } from '../api/client';
 
 const PlayDetailScreen = () => {
   const navigate = useNavigate();
@@ -17,6 +19,16 @@ const PlayDetailScreen = () => {
     description: '참여자가 선택되지 않았습니다.',
     owner: null,
   };
+
+  const [wish, setWish] = React.useState(isWishlisted(post.id));
+  const [likeCount, setLikeCount] = React.useState(post.like_count ?? 0);
+  const [currentUser, setCurrentUser] = React.useState(null);
+
+  React.useEffect(() => {
+    apiFetch('/api/v1/auth/me')
+      .then((me) => setCurrentUser(me))
+      .catch(() => setCurrentUser(null));
+  }, []);
 
   const startText = post.start_time
     ? new Date(post.start_time).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -58,6 +70,48 @@ const PlayDetailScreen = () => {
         >
           1 / 4
         </div>
+        {currentUser && currentUser.id === post.owner_id ? (
+          <div style={{ position: 'absolute', top: 14, right: 14, display: 'flex', gap: 8 }}>
+            <button
+              style={{
+                border: '1px solid rgba(0,0,0,0.2)',
+                background: 'white',
+                borderRadius: 10,
+                padding: '6px 10px',
+                cursor: 'pointer',
+                fontWeight: 700,
+              }}
+              onClick={() => navigate(`/edit/${post.id}`, { state: { post } })}
+            >
+              수정하기
+            </button>
+            <button
+              style={{
+                border: '1px solid #f36f72',
+                background: '#f36f72',
+                color: 'white',
+                borderRadius: 10,
+                padding: '6px 10px',
+                cursor: 'pointer',
+                fontWeight: 700,
+              }}
+              onClick={() => {
+                if (!window.confirm('정말 삭제할까요?')) return;
+                apiFetch(`/api/v1/posts/${post.id}`, { method: 'DELETE' })
+                  .then(() => {
+                    alert('삭제되었습니다.');
+                    navigate('/home', { replace: true });
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    alert('삭제에 실패했습니다.');
+                  });
+              }}
+            >
+              삭제하기
+            </button>
+          </div>
+        ) : null}
         <div
           style={{
             width: '100%',
@@ -140,10 +194,22 @@ const PlayDetailScreen = () => {
             height: 48,
             borderRadius: 12,
             border: '1px solid #f36f72',
-            background: 'white',
-            color: '#f36f72',
+            background: wish ? '#f36f72' : 'white',
+            color: wish ? 'white' : '#f36f72',
             fontSize: 20,
             cursor: 'pointer',
+          }}
+          onClick={() => {
+            if (!post.id) return;
+            apiFetch(`/api/v1/posts/${post.id}/like`, { method: 'POST' })
+              .then((res) => {
+                setLikeCount(res.like_count ?? likeCount);
+                setWish(res.is_liked ?? false);
+                const current = loadWishlist().filter((p) => p.id !== post.id);
+                const next = res.is_liked ? [...current, { ...post, like_count: res.like_count }] : current;
+                saveWishlist(next);
+              })
+              .catch((err) => console.error(err));
           }}
         >
           ♥

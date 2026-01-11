@@ -10,8 +10,16 @@ const MapScreen = () => {
 
   useEffect(() => {
     let map;
-    let markers = [];
+    let postMarkers = [];
+    let postLabels = [];
     let userMarker = null;
+    let userLabel = null;
+    const clearPostMarkers = () => {
+      postMarkers.forEach((m) => m.setMap(null));
+      postLabels.forEach((l) => l.setMap(null));
+      postMarkers = [];
+      postLabels = [];
+    };
 
     const setupMap = async () => {
       try {
@@ -21,45 +29,60 @@ const MapScreen = () => {
         if (!mapRef.current) return;
 
         const defaultCenter = new kakao.maps.LatLng(37.498095, 127.02761);
+        const MAP_LEVEL = 6; // 더 넓은 반경(약 1cm=250m 수준)으로 고정
         map = new kakao.maps.Map(mapRef.current, {
           center: defaultCenter,
-          level: 4,
+          level: MAP_LEVEL,
         });
 
         const placeMeMarker = (center) => {
-          // Custom pin using overlay so it always renders (data URI might be blocked on some setups)
-          const content = document.createElement('div');
-          content.style.width = '32px';
-          content.style.height = '42px';
-          content.style.position = 'relative';
-          content.style.transform = 'translate(-50%, -100%)';
-          content.innerHTML = `
-            <svg width="32" height="42" viewBox="0 0 34 42" style="position:absolute;left:0;top:0;">
-              <path fill="#f36f72" d="M17 0C7.6 0 0 7.4 0 16.5 0 28 17 42 17 42s17-14 17-25.5C34 7.4 26.4 0 17 0z"/>
-              <circle cx="17" cy="16" r="6" fill="#fff"/>
-            </svg>`;
-          const overlay = new kakao.maps.CustomOverlay({
+          const image = new kakao.maps.MarkerImage(
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 34 42"><path fill="%23f36f72" d="M17 0C7.6 0 0 7.4 0 16.5 0 28 17 42 17 42s17-14 17-25.5C34 7.4 26.4 0 17 0z"/><circle cx="17" cy="16" r="6" fill="%23fff"/></svg>',
+            new kakao.maps.Size(32, 42),
+            { offset: new kakao.maps.Point(16, 42) },
+          );
+          if (userMarker) userMarker.setMap(null);
+          if (userLabel) userLabel.setMap(null);
+          userMarker = new kakao.maps.Marker({ position: center, map, image });
+          userLabel = new kakao.maps.CustomOverlay({
             position: center,
-            content,
-            yAnchor: 1,
+            yAnchor: 1.4,
+            content:
+              '<div style="background:#fff;padding:4px 8px;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.15);font-size:11px;font-weight:800;color:#f36f72;white-space:nowrap;">나의 위치</div>',
           });
-          overlay.setMap(map);
-          markers.push(overlay);
+          userLabel.setMap(map);
+        };
+
+        const createPostMarker = (post) => {
+          const pos = new kakao.maps.LatLng(post.latitude, post.longitude);
+          const marker = new kakao.maps.Marker({
+            position: pos,
+            map,
+            image: new kakao.maps.MarkerImage(
+              'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 34 42"><path fill="%231e70ff" d="M17 0C7.6 0 0 7.4 0 16.5 0 28 17 42 17 42s17-14 17-25.5C34 7.4 26.4 0 17 0z"/><circle cx="17" cy="16" r="6" fill="%23fff"/></svg>',
+              new kakao.maps.Size(30, 40),
+              { offset: new kakao.maps.Point(15, 40) },
+            ),
+          });
+          const label = new kakao.maps.CustomOverlay({
+            position: pos,
+            yAnchor: 1.3,
+            content: `<div style="background:#fff;padding:4px 8px;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.15);font-size:11px;font-weight:700;color:#1e70ff;white-space:nowrap;">${post.title || '놀이팟'}</div>`,
+          });
+          marker.setMap(map);
+          label.setMap(map);
+          postMarkers.push(marker);
+          postLabels.push(label);
         };
 
         const applyPosts = (posts, center) => {
-          markers.forEach((m) => m.setMap(null));
-          markers = [];
+          clearPostMarkers();
           const validPosts = posts.filter((p) => p.latitude && p.longitude);
           if (validPosts.length === 0) {
             setToastText('아직 주변에 놀이팟이 없어요.');
             return;
           }
-          validPosts.forEach((p) => {
-            const pos = new kakao.maps.LatLng(p.latitude, p.longitude);
-            const marker = new kakao.maps.Marker({ position: pos, map });
-            markers.push(marker);
-          });
+          validPosts.forEach((p) => createPostMarker(p));
           map.setCenter(center);
           setToastText(`주변에 ${validPosts.length}개의 놀이팟이 있어요!`);
         };
@@ -78,16 +101,13 @@ const MapScreen = () => {
               const { latitude, longitude } = pos.coords;
               const center = new kakao.maps.LatLng(latitude, longitude);
               map.setCenter(center);
-              map.setLevel(4);
+              map.setLevel(MAP_LEVEL);
               placeMeMarker(center);
-              userMarker = markers.pop() || userMarker; // keep user marker separately
               applyPosts(posts, center);
-              if (userMarker) userMarker.setMap(map);
               setMapReady(true);
             },
             () => {
               placeMeMarker(defaultCenter);
-              userMarker = markers.pop() || userMarker;
               applyPosts(posts, defaultCenter);
               setMapReady(true);
             },
@@ -95,7 +115,6 @@ const MapScreen = () => {
           );
         } else {
           placeMeMarker(defaultCenter);
-          userMarker = markers.pop() || userMarker;
           applyPosts(posts, defaultCenter);
           setMapReady(true);
         }
@@ -112,8 +131,9 @@ const MapScreen = () => {
       if (map) {
         map = null;
       }
-      markers = [];
+      clearPostMarkers();
       userMarker = null;
+      userLabel = null;
     };
   }, []);
 

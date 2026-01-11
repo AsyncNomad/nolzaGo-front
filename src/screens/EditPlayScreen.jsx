@@ -1,13 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
 import { apiFetch } from '../api/client';
 import { loadKakaoSdk } from '../utils/kakao';
 
 const minuteOptions = ['00', '10', '20', '30', '40', '50'];
 
-const CreatePlayScreen = () => {
+const EditPlayScreen = () => {
   const navigate = useNavigate();
+  const { postId } = useParams();
+  const { state } = useLocation();
+
+  const mapRef = useRef(null);
+  const searchRef = useRef(null);
+  const kakaoRef = useRef(null);
+  const markersRef = useRef([]);
+
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [hour, setHour] = useState('18');
@@ -19,32 +27,43 @@ const CreatePlayScreen = () => {
   const [maxParticipants, setMaxParticipants] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
   const [mapOpen, setMapOpen] = useState(false);
-  const mapRef = useRef(null);
-  const searchRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
-  const kakaoRef = useRef(null);
-  const markersRef = useRef([]);
 
   useEffect(() => {
-    const today = new Date();
-    setDate(today.toISOString().slice(0, 10));
-  }, []);
+    const fillFromPost = (post) => {
+      setTitle(post.title || '');
+      if (post.start_time) {
+        const d = new Date(post.start_time);
+        setDate(d.toISOString().slice(0, 10));
+        setHour(String(d.getHours()).padStart(2, '0'));
+        setMinute(String(Math.floor(d.getMinutes() / 10) * 10).toString().padStart(2, '0'));
+      }
+      setLocationName(post.location_name || '');
+      setLatitude(post.latitude || null);
+      setLongitude(post.longitude || null);
+      setDescription(post.description || '');
+      setMaxParticipants(String(post.max_participants ?? ''));
+    };
+
+    if (state?.post) {
+      fillFromPost(state.post);
+    } else {
+      apiFetch(`/api/v1/posts/${postId}`)
+        .then((post) => fillFromPost(post))
+        .catch(() => {
+          alert('모집글을 불러오지 못했습니다.');
+          navigate(-1);
+        });
+    }
+  }, [state, postId, navigate]);
 
   const maxValid =
     maxParticipants !== '' && Number.isInteger(Number(maxParticipants)) && Number(maxParticipants) >= 2 && Number(maxParticipants) <= 100;
+
   const canSubmit = useMemo(
     () =>
-      title &&
-      date &&
-      hour &&
-      minute &&
-      locationName &&
-      latitude &&
-      longitude &&
-      maxValid &&
-      !saving,
+      title && date && hour && minute && locationName && latitude && longitude && maxValid && !saving,
     [title, date, hour, minute, locationName, latitude, longitude, maxValid, saving],
   );
 
@@ -61,23 +80,24 @@ const CreatePlayScreen = () => {
       kakaoRef.current = kakao;
       await new Promise((resolve) => kakao.maps.load(resolve));
       if (!mapRef.current) return;
-      const defaultCenter = new kakao.maps.LatLng(37.498095, 127.02761);
+      const defaultCenter = new kakao.maps.LatLng(latitude || 37.498095, longitude || 127.02761);
       const map = new kakao.maps.Map(mapRef.current, {
         center: defaultCenter,
-        level: 4,
+        level: 5,
       });
+      mapRef.current._mapInstance = map;
+
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const center = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
             map.setCenter(center);
-            map.setLevel(4);
+            map.setLevel(5);
           },
           () => {},
           { enableHighAccuracy: true, timeout: 8000 },
         );
       }
-      mapRef.current._mapInstance = map;
       setMapReady(true);
     } catch (err) {
       console.error(err);
@@ -119,27 +139,25 @@ const CreatePlayScreen = () => {
     setSaving(true);
     setError('');
     try {
-      // 로컬 시간을 tz정보 없는 문자열(YYYY-MM-DDTHH:MM:SS)로 맞춰 DB naive timestamp와 충돌을 피함
       const local = new Date(`${date}T${hour.padStart(2, '0')}:${minute}:00`);
       const startIso = new Date(local.getTime() - local.getTimezoneOffset() * 60000).toISOString().slice(0, 19);
-      await apiFetch('/api/v1/posts', {
-        method: 'POST',
+      await apiFetch(`/api/v1/posts/${postId}`, {
+        method: 'PATCH',
         body: JSON.stringify({
           title,
           description,
           location_name: locationName,
           latitude,
           longitude,
-          game_type: '모임',
           max_participants: Number(maxParticipants),
           start_time: startIso,
         }),
       });
-      alert('모집글이 등록되었어요.');
-      navigate('/home');
+      alert('수정되었습니다.');
+      navigate(-1);
     } catch (err) {
       console.error(err);
-      setError('등록에 실패했습니다. 입력을 확인 후 다시 시도해주세요.');
+      setError('수정에 실패했습니다. 입력을 확인 후 다시 시도해주세요.');
     } finally {
       setSaving(false);
     }
@@ -155,7 +173,7 @@ const CreatePlayScreen = () => {
         >
           <BackIcon color="#2f2f2f" />
         </button>
-        <span style={{ fontSize: 14, color: '#b0b0b0', fontWeight: 700 }}>놀이 모집 등록 페이지</span>
+        <span style={{ fontSize: 14, color: '#b0b0b0', fontWeight: 700 }}>놀이 모집 수정 페이지</span>
       </div>
 
       <div className="panel" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -239,7 +257,7 @@ const CreatePlayScreen = () => {
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          {saving ? '등록 중...' : '등록하기'}
+          {saving ? '수정 중...' : '수정하기'}
         </button>
       </div>
 
@@ -305,4 +323,4 @@ const CreatePlayScreen = () => {
   );
 };
 
-export default CreatePlayScreen;
+export default EditPlayScreen;
