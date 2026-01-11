@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
-
-const placeholders = Array.from({ length: 21 });
+import { apiFetch } from '../api/client';
 
 const MemoriesScreen = () => {
   const navigate = useNavigate();
+  const [memories, setMemories] = useState([]);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await apiFetch('/api/v1/memories');
+        if (!mounted) return;
+        setMemories(data || []);
+      } catch (err) {
+        console.error(err);
+        if (!mounted) return;
+        setError('추억을 불러올 수 없어요.');
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="mobile-shell light-panel" style={{ paddingBottom: 90 }}>
@@ -30,11 +50,35 @@ const MemoriesScreen = () => {
       >
         +
       </button>
-      <div className="memory-grid">
-        {placeholders.map((_, idx) => (
-          <div key={idx} className="memory-tile" aria-label={`memory placeholder ${idx + 1}`} />
-        ))}
-      </div>
+
+      {error ? (
+        <div style={{ padding: 16, textAlign: 'center', color: '#c75f63', fontWeight: 700 }}>{error}</div>
+      ) : memories.length === 0 ? (
+        <div style={{ padding: 16, textAlign: 'center', color: '#888', fontWeight: 700 }}>아직 추억이 없어요.</div>
+      ) : (
+        <div className="memory-grid">
+          {memories.map((m) => {
+            const hasImage = !!m.image_url;
+            return (
+              <div
+                key={m.id}
+                className="memory-tile"
+                style={
+                  hasImage
+                    ? {
+                        backgroundImage: `url(${m.image_url})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        border: '1px solid #e2e2e2',
+                      }
+                    : undefined
+                }
+                aria-label={m.title}
+              />
+            );
+          })}
+        </div>
+      )}
       <BottomNav />
     </div>
   );
