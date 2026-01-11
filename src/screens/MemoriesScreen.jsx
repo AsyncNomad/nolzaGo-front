@@ -74,6 +74,14 @@ const MemoriesScreen = () => {
                     : undefined
                 }
                 aria-label={m.title}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/memories/${m.id}`, { state: m })}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    navigate(`/memories/${m.id}`, { state: m });
+                  }
+                }}
               />
             );
           })}

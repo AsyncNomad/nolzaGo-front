@@ -11,6 +11,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import LocationConfirmScreen from './screens/LocationConfirmScreen';
 import MemoriesScreen from './screens/MemoriesScreen';
 import MemoriesCreateScreen from './screens/MemoriesCreateScreen';
+import MemoriesDetailScreen from './screens/MemoriesDetailScreen';
 import PlayDetailScreen from './screens/PlayDetailScreen';
 import EditPlayScreen from './screens/EditPlayScreen';
 
@@ -28,6 +29,7 @@ const App = () => {
       <Route path="/map" element={<MapScreen />} />
       <Route path="/memories" element={<MemoriesScreen />} />
       <Route path="/memories/create" element={<MemoriesCreateScreen />} />
+      <Route path="/memories/:id" element={<MemoriesDetailScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
       <Route path="/location-confirm" element={<LocationConfirmScreen />} />
       <Route path="/play/:id" element={<PlayDetailScreen />} />
