@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch, setToken } from '../api/client';
+import { apiFetch, API_BASE, setToken } from '../api/client';
 
 const LoginScreen = () => {
   const navigate = useNavigate();
@@ -107,7 +107,7 @@ const LoginScreen = () => {
               const body = new URLSearchParams();
               body.append('username', email);
               body.append('password', password);
-              const res = await fetch('/api/v1/auth/token', {
+              const res = await fetch(`${API_BASE}/api/v1/auth/token`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body,

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
 import { loadKakaoSdk } from '../utils/kakao';
-import { apiFetch, setToken } from '../api/client';
+import { apiFetch, API_BASE, setToken } from '../api/client';
 
 const LocationConfirmScreen = () => {
   const navigate = useNavigate();
@@ -158,7 +158,7 @@ const LocationConfirmScreen = () => {
                 const body = new URLSearchParams();
                 body.append('username', state.email);
                 body.append('password', state.password);
-                const res = await fetch('/api/v1/auth/token', {
+                const res = await fetch(`${API_BASE}/api/v1/auth/token`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                   body,

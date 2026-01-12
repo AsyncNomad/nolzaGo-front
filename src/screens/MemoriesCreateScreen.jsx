@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
 import MockImage from '../components/MockImage';
 import ImagePreview from '../components/ImagePreview';
-import { apiFetch, getToken } from '../api/client';
+import { apiFetch, API_BASE, getToken } from '../api/client';
 
 const mockPlays = [];
 
@@ -157,7 +157,7 @@ const MemoriesCreateScreen = () => {
                   try {
                     const form = new FormData();
                     form.append('file', file);
-                    const res = await fetch('/api/v1/uploads/image', {
+                    const res = await fetch(`${API_BASE}/api/v1/uploads/image`, {
                       method: 'POST',
                       body: form,
                       headers: {
