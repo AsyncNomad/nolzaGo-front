@@ -23,17 +23,31 @@ const PlayDetailScreen = () => {
   const [wish, setWish] = React.useState(isWishlisted(post.id));
   const [likeCount, setLikeCount] = React.useState(post.like_count ?? 0);
   const [currentUser, setCurrentUser] = React.useState(null);
+  const [joined, setJoined] = React.useState(false);
+  const [status, setStatus] = React.useState(post.status || '모집 중');
+  const statusOptions = ['모집 중', '모집 마감', '놀이 진행 중', '종료'];
 
   React.useEffect(() => {
     apiFetch('/api/v1/auth/me')
-      .then((me) => setCurrentUser(me))
+      .then((me) => {
+        setCurrentUser(me);
+        // 이미 참여한 모집글인지 확인
+        apiFetch('/api/v1/posts/mine')
+          .then((list) => {
+            if (Array.isArray(list) && post.id) {
+              const found = list.find((p) => p.id === post.id);
+              if (found) setJoined(true);
+            }
+          })
+          .catch(() => {});
+      })
       .catch(() => setCurrentUser(null));
-  }, []);
+  }, [post.id]);
 
   const startText = post.start_time
     ? new Date(post.start_time).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     : '일정 미정';
-  const statusText = post.status || '모집 중';
+  const statusText = status || '모집 중';
   const peopleText = `${Math.max(1, post.participants_count ?? 0)}/${post.max_participants ?? 0}`;
   const locationText = post.location_name || post.location || '장소 미정';
   const [joining, setJoining] = React.useState(false);
@@ -180,6 +194,42 @@ const PlayDetailScreen = () => {
           </div>
           <div style={{ fontSize: 14, fontWeight: 700 }}>{post.owner?.display_name || '게스트'}</div>
         </div>
+        {currentUser && currentUser.id === post.owner_id ? (
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ fontWeight: 800, fontSize: 13, color: '#c04f54' }}>모집글 상태</label>
+            <div style={{ marginTop: 6, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <select
+                value={status}
+                onChange={async (e) => {
+                  const next = e.target.value;
+                  setStatus(next);
+                  try {
+                    await apiFetch(`/api/v1/posts/${post.id}`, {
+                      method: 'PATCH',
+                      body: JSON.stringify({ status: next }),
+                    });
+                  } catch (err) {
+                    console.error(err);
+                    alert('상태 변경에 실패했습니다.');
+                  }
+                }}
+                style={{
+                  borderRadius: 10,
+                  border: '1px solid #e0e0e0',
+                  padding: '8px 10px',
+                  fontSize: 13,
+                  background: '#f8f8f8',
+                }}
+              >
+                {statusOptions.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        ) : null}
         <div style={{ lineHeight: 1.5, fontSize: 13, color: '#4a4a4a', whiteSpace: 'pre-line' }}>
           {post.description || '모집 내용이 없습니다.'}
         </div>
@@ -238,20 +288,31 @@ const PlayDetailScreen = () => {
           disabled={joining}
           onClick={async () => {
             if (!post.id) return;
+            // 이미 참여한 경우 바로 채팅으로 이동
+            if (joined || (currentUser && currentUser.id === post.owner_id)) {
+              navigate(`/chat-room/${post.id}`, { state: post });
+              return;
+            }
             setJoining(true);
             try {
               await apiFetch(`/api/v1/posts/${post.id}/join`, { method: 'POST' });
-              alert('참여가 완료되었어요. 채팅방으로 이동합니다.');
+              setJoined(true);
               navigate(`/chat-room/${post.id}`, { state: post });
             } catch (err) {
               console.error(err);
-              alert('참여에 실패했습니다. 다시 시도해주세요.');
+              // 이미 참여한 상태라면 안내 후 채팅 이동
+              if (err.message && err.message.includes('Already joined')) {
+                setJoined(true);
+                navigate(`/chat-room/${post.id}`, { state: post });
+              } else {
+                alert('참여에 실패했습니다. 다시 시도해주세요.');
+              }
             } finally {
               setJoining(false);
             }
           }}
         >
-          {joining ? '참여 중...' : '참여하기'}
+          {joining ? '참여 중...' : joined || (currentUser && currentUser.id === post.owner_id) ? '채팅하기' : '참여하기'}
         </button>
       </div>
     </div>

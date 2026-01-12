@@ -79,11 +79,21 @@ const HomeScreen = () => {
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className="pill" style={{ borderColor: '#f36f72', color: '#f36f72' }}>
-                      {Math.max(1, post.participants_count ?? 0)}/{post.max_participants ?? 0}
-                    </span>
-                    <span>{post.start_time ? new Date(post.start_time).toLocaleDateString('ko-KR') : '오늘'}</span>
-                  </div>
+                      <span className="pill" style={{ borderColor: '#f36f72', color: '#f36f72' }}>
+                        {Math.max(1, post.participants_count ?? 0)}/{post.max_participants ?? 0}
+                      </span>
+                      <span
+                        className="pill"
+                        style={{
+                          borderColor: '#d0d0d0',
+                          color: '#555',
+                          background: '#f5f5f5',
+                        }}
+                      >
+                        {post.status || '모집 중'}
+                      </span>
+                      <span>{post.start_time ? new Date(post.start_time).toLocaleDateString('ko-KR') : '오늘'}</span>
+                    </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
