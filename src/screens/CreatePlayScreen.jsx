@@ -159,7 +159,6 @@ const CreatePlayScreen = () => {
         >
           <BackIcon color="#2f2f2f" />
         </button>
-        <span style={{ fontSize: 14, color: '#b0b0b0', fontWeight: 700 }}>놀이 모집 등록 페이지</span>
       </div>
 
       <div className="panel" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
