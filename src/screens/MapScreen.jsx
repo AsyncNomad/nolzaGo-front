@@ -77,14 +77,14 @@ const MapScreen = () => {
 
         const applyPosts = (posts, center) => {
           clearPostMarkers();
-          const validPosts = posts.filter((p) => p.latitude && p.longitude);
+          const validPosts = posts.filter((p) => p.latitude && p.longitude && (p.status === '모집 중'));
           if (validPosts.length === 0) {
-            setToastText('아직 주변에 놀이팟이 없어요.');
+            setToastText('아직 주변에 모집 중인 놀이팟이 없어요.');
             return;
           }
           validPosts.forEach((p) => createPostMarker(p));
           map.setCenter(center);
-          setToastText(`주변에 ${validPosts.length}개의 놀이팟이 있어요!`);
+          setToastText(`주변에 ${validPosts.length}개의 놀이팟이 모집 중이에요!`);
         };
 
         let posts = [];

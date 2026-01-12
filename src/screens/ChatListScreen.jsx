@@ -53,8 +53,32 @@ const ChatListScreen = () => {
                 )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ fontWeight: 800, fontSize: 14 }}>{room.title}</div>
-                  <div style={{ fontSize: 13, color: '#777', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {room.location_name || '장소 미정'}
+                  <div style={{ fontSize: 12, color: '#777', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span className="pill" style={{ borderColor: '#d0d0d0', color: '#555', background: '#f5f5f5' }}>
+                      {room.status || '모집 중'}
+                    </span>
+                    <span>{room.location_name || '장소 미정'}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#555', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {room.last_message || '메시지가 없습니다.'}
+                    </span>
+                    {room.unread_count ? (
+                      <span
+                        style={{
+                          background: '#e95e65',
+                          color: 'white',
+                          borderRadius: '999px',
+                          padding: '2px 8px',
+                          fontWeight: 800,
+                          fontSize: 11,
+                          minWidth: 22,
+                          textAlign: 'center',
+                        }}
+                      >
+                        {room.unread_count}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </div>
