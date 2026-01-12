@@ -139,9 +139,6 @@ const MapScreen = () => {
 
   return (
     <div className="mobile-shell light-panel" style={{ background: '#f7f7f7', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 12, color: '#a7a7a7', fontWeight: 700 }}>놀이팟 위치 확인 페이지</span>
-      </div>
       <div className="map-panel" style={{ margin: '0 14px', borderRadius: 18, height: 440, position: 'relative' }}>
         <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
         {!mapReady && (

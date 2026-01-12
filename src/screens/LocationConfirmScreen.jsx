@@ -78,7 +78,6 @@ const LocationConfirmScreen = () => {
         >
           <BackIcon size={22} color="#2b2b2b" />
         </button>
-        <span style={{ fontSize: 13, color: '#a6a6a6', fontWeight: 700 }}>동네 인증 페이지</span>
       </div>
       <div
         className="map-panel"
