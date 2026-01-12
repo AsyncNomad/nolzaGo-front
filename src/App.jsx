@@ -25,7 +25,7 @@ const App = () => {
       <Route path="/create" element={<CreatePlayScreen />} />
       <Route path="/edit/:postId" element={<EditPlayScreen />} />
       <Route path="/chat-list" element={<ChatListScreen />} />
-      <Route path="/chat-room" element={<ChatRoomScreen />} />
+      <Route path="/chat-room/:postId" element={<ChatRoomScreen />} />
       <Route path="/map" element={<MapScreen />} />
       <Route path="/memories" element={<MemoriesScreen />} />
       <Route path="/memories/create" element={<MemoriesCreateScreen />} />

@@ -5,18 +5,20 @@ import MockImage from '../components/MockImage';
 import { apiFetch, setToken } from '../api/client';
 import { loadWishlist, saveWishlist, isWishlisted } from '../api/wishlist';
 
-const recent = ['자전거', '하우스', '공구'];
-
 const ProfileScreen = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [wishlist, setWishlist] = useState([]);
+  const [joined, setJoined] = useState([]);
 
   useEffect(() => {
     apiFetch('/api/v1/auth/me')
       .then((data) => setUser(data))
       .catch(() => setUser(null));
     setWishlist(loadWishlist());
+    apiFetch('/api/v1/posts/mine')
+      .then((data) => setJoined(data || []))
+      .catch(() => setJoined([]));
   }, []);
 
   const initial = user?.display_name?.[0] || user?.email?.[0] || '?';
@@ -54,25 +56,62 @@ const ProfileScreen = () => {
             <div style={{ fontSize: 13, color: '#888' }}>{user?.location_name || '동네 인증 대기'}</div>
           </div>
         </div>
-        <div style={{ fontWeight: 900, fontSize: 18, marginBottom: 14 }}>참여중인 놀이</div>
-        <div
-          style={{
-            background: '#f36f72',
-            color: 'white',
-            padding: '12px 14px',
-            borderRadius: 8,
-            fontSize: 14,
-            fontWeight: 700,
-          }}
-        >
-          저녁 7시에 오리연못에서 경도 약속이 있어요.
-        </div>
-        <div style={{ fontWeight: 900, fontSize: 17, margin: '14px 0 10px' }}>최근 참여한 놀이</div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          {recent.map((item) => (
-            <MockImage key={item} label={item} size={90} corner={10} />
-          ))}
-        </div>
+        <div style={{ fontWeight: 900, fontSize: 18, marginBottom: 10 }}>참여중인 놀이</div>
+        {joined.length === 0 ? (
+          <div
+            style={{
+              background: '#f9f9f9',
+              color: '#888',
+              padding: '12px 14px',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 700,
+            }}
+          >
+            참여 중인 놀이가 없어요.
+          </div>
+        ) : (
+          joined.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                background: '#fff5f5',
+                border: '1px solid #f36f72',
+                color: '#2b2b2b',
+                padding: '10px 12px',
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 700,
+                marginBottom: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                cursor: 'pointer',
+              }}
+              onClick={() => navigate(`/play/${encodeURIComponent(item.title)}`, { state: item })}
+            >
+              <div
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 12,
+                  background: '#f36f72',
+                  color: 'white',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontWeight: 900,
+                }}
+              >
+                {item.title?.slice(0, 2) || '놀이'}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div>{item.title}</div>
+                <div style={{ fontSize: 12, color: '#777' }}>{item.location_name || '장소 미정'}</div>
+              </div>
+              <div style={{ fontSize: 12, color: '#f36f72' }}>{item.status || '모집 중'}</div>
+            </div>
+          ))
+        )}
         <div style={{ marginTop: 14, borderTop: '1px solid #ededed', paddingTop: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span style={{ width: 18 }}>♡</span>

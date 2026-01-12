@@ -36,6 +36,7 @@ const PlayDetailScreen = () => {
   const statusText = post.status || '모집 중';
   const peopleText = `${Math.max(1, post.participants_count ?? 0)}/${post.max_participants ?? 0}`;
   const locationText = post.location_name || post.location || '장소 미정';
+  const [joining, setJoining] = React.useState(false);
 
   return (
     <div className="mobile-shell" style={{ background: 'white', color: '#2b2b2b', display: 'flex', flexDirection: 'column' }}>
@@ -234,9 +235,23 @@ const PlayDetailScreen = () => {
             fontSize: 15,
             cursor: 'pointer',
           }}
-          onClick={() => navigate('/chat-room')}
+          disabled={joining}
+          onClick={async () => {
+            if (!post.id) return;
+            setJoining(true);
+            try {
+              await apiFetch(`/api/v1/posts/${post.id}/join`, { method: 'POST' });
+              alert('참여가 완료되었어요. 채팅방으로 이동합니다.');
+              navigate(`/chat-room/${post.id}`, { state: post });
+            } catch (err) {
+              console.error(err);
+              alert('참여에 실패했습니다. 다시 시도해주세요.');
+            } finally {
+              setJoining(false);
+            }
+          }}
         >
-          참여하기
+          {joining ? '참여 중...' : '참여하기'}
         </button>
       </div>
     </div>
