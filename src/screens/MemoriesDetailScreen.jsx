@@ -19,8 +19,13 @@ const MemoriesDetailScreen = () => {
     },
   );
   const [loading, setLoading] = useState(!state);
+  const [me, setMe] = useState(null);
 
   useEffect(() => {
+    apiFetch('/api/v1/auth/me')
+      .then(setMe)
+      .catch(() => setMe(null));
+
     let mounted = true;
     if (state || !id) return;
     const load = async () => {
@@ -44,6 +49,7 @@ const MemoriesDetailScreen = () => {
     ? new Date(memory.created_at).toLocaleDateString('ko-KR')
     : '날짜 미정';
   const authorName = memory.owner?.display_name || 'user';
+  const isOwner = me?.id && memory.owner?.id && me.id === memory.owner.id;
 
   return (
     <div className="mobile-shell" style={{ background: 'white', color: '#2b2b2b', display: 'flex', flexDirection: 'column' }}>
@@ -99,6 +105,47 @@ const MemoriesDetailScreen = () => {
           </div>
           <div style={{ textAlign: 'right', fontSize: 12, color: '#888' }}>{createdText}</div>
         </div>
+        {isOwner && (
+          <div style={{ marginTop: 10, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => navigate('/memories/create', { state: { mode: 'edit', memory } })}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 10,
+                border: '1px solid #e3e3e3',
+                background: '#fff',
+                cursor: 'pointer',
+                fontWeight: 700,
+              }}
+            >
+              수정하기
+            </button>
+            <button
+              onClick={async () => {
+                if (!window.confirm('추억을 삭제할까요?')) return;
+                try {
+                  await apiFetch(`/api/v1/memories/${memory.id}`, { method: 'DELETE' });
+                  alert('삭제되었습니다.');
+                  navigate('/memories');
+                } catch (err) {
+                  console.error(err);
+                  alert('삭제에 실패했습니다.');
+                }
+              }}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 10,
+                border: '1px solid #f36f72',
+                background: '#fef0f1',
+                color: '#f36f72',
+                cursor: 'pointer',
+                fontWeight: 800,
+              }}
+            >
+              삭제하기
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={{ padding: '16px', flex: 1, background: 'white', color: '#2b2b2b' }}>

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BackIcon, SendIcon } from '../assets/icons';
 import { apiFetch, getToken } from '../api/client';
+import aiLogo from '../assets/ailogo.png';
 
 const ChatRoomScreen = () => {
   const navigate = useNavigate();
@@ -10,6 +11,9 @@ const ChatRoomScreen = () => {
   const [post, setPost] = useState(state || null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryText, setSummaryText] = useState('');
   const wsRef = useRef(null);
   const [me, setMe] = useState(null);
   const formatTime = (ts) =>
@@ -88,6 +92,21 @@ const ChatRoomScreen = () => {
     if (!input.trim()) return;
     wsRef.current?.send(input.trim());
     setInput('');
+  };
+
+  const fetchSummary = async () => {
+    if (summaryLoading) return;
+    setSummaryLoading(true);
+    setSummaryText('');
+    setSummaryOpen(true);
+    try {
+      const res = await apiFetch(`/api/v1/posts/${postId}/chat/summary`);
+      setSummaryText(res?.summary || '요약을 가져오지 못했어요.');
+    } catch (err) {
+      setSummaryText('요약을 가져오지 못했어요.');
+    } finally {
+      setSummaryLoading(false);
+    }
   };
 
   const myId = me?.id;
@@ -269,6 +288,24 @@ const ChatRoomScreen = () => {
           display: 'flex',
         }}
       >
+        <button
+          onClick={fetchSummary}
+          style={{
+            width: 46,
+            height: 46,
+            borderRadius: 12,
+            border: '1px solid #e3e3e3',
+            background: '#fafafa',
+            display: 'grid',
+            placeItems: 'center',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+          aria-label="AI 요약"
+          disabled={summaryLoading}
+        >
+          <img src={aiLogo} alt="AI" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+        </button>
         <input
           placeholder=""
           value={input}
@@ -301,6 +338,56 @@ const ChatRoomScreen = () => {
           <SendIcon color="white" size={20} />
         </div>
       </div>
+
+      {summaryOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 30,
+            padding: 16,
+          }}
+          onClick={() => setSummaryOpen(false)}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: 14,
+              padding: 18,
+              width: '100%',
+              maxWidth: 420,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div style={{ fontWeight: 800, fontSize: 15 }}>채팅 3줄 요약</div>
+              <button
+                onClick={() => setSummaryOpen(false)}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  fontSize: 16,
+                  cursor: 'pointer',
+                  color: '#888',
+                }}
+                aria-label="닫기"
+              >
+                ✕
+              </button>
+            </div>
+            <div style={{ fontSize: 14, color: '#444', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+              {summaryLoading ? '요약을 불러오는 중입니다...' : summaryText || '요약을 가져오지 못했어요.'}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

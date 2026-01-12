@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
 import MockImage from '../components/MockImage';
 import ImagePreview from '../components/ImagePreview';
@@ -9,14 +9,23 @@ const mockPlays = [];
 
 const MemoriesCreateScreen = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const editing = state?.mode === 'edit' && state?.memory;
+  const editingMemory = state?.memory;
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [selectedPlay, setSelectedPlay] = useState(null);
   const plays = useMemo(() => mockPlays, []);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [title, setTitle] = useState(editingMemory?.title || '');
+  const [content, setContent] = useState(editingMemory?.content || '');
+  const [imageUrl, setImageUrl] = useState(editingMemory?.image_url || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (editingMemory?.location_name) {
+      setSelectedPlay({ title: editingMemory.location_name, host: '' });
+    }
+  }, [editingMemory]);
 
   return (
     <div className="mobile-shell light-panel" style={{ minHeight: '100vh', paddingBottom: 24 }}>
@@ -49,7 +58,7 @@ const MemoriesCreateScreen = () => {
         >
           <BackIcon size={22} color="#2b2b2b" />
         </button>
-        <div style={{ fontWeight: 800, fontSize: 18 }}>추억 남기기</div>
+        <div style={{ fontWeight: 800, fontSize: 18 }}>{editing ? '추억 수정하기' : '추억 남기기'}</div>
       </div>
 
       <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -204,17 +213,31 @@ const MemoriesCreateScreen = () => {
             setSaving(true);
             setError('');
             try {
-              await apiFetch('/api/v1/memories', {
-                method: 'POST',
-                body: JSON.stringify({
-                  title,
-                  content,
-                  image_url: imageUrl || null,
-                  location_name: selectedPlay ? selectedPlay.title : null,
-                }),
-              });
-              alert('추억이 등록되었어요.');
-              navigate('/memories');
+              if (editing) {
+                await apiFetch(`/api/v1/memories/${editingMemory.id}`, {
+                  method: 'PATCH',
+                  body: JSON.stringify({
+                    title,
+                    content,
+                    image_url: imageUrl || null,
+                    location_name: selectedPlay ? selectedPlay.title : null,
+                  }),
+                });
+                alert('추억을 수정했어요.');
+                navigate(`/memories/${editingMemory.id}`);
+              } else {
+                await apiFetch('/api/v1/memories', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    title,
+                    content,
+                    image_url: imageUrl || null,
+                    location_name: selectedPlay ? selectedPlay.title : null,
+                  }),
+                });
+                alert('추억이 등록되었어요.');
+                navigate('/memories');
+              }
             } catch (err) {
               console.error(err);
               setError('등록에 실패했습니다. 다시 시도해주세요.');
@@ -223,7 +246,7 @@ const MemoriesCreateScreen = () => {
             }
           }}
         >
-          {saving ? '올리는 중...' : '추억 올리기'}
+          {saving ? '올리는 중...' : editing ? '추억 수정하기' : '추억 올리기'}
         </button>
         {error && (
           <div style={{ marginTop: 8, color: '#c75f63', fontWeight: 700, textAlign: 'center' }}>{error}</div>
