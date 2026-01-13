@@ -10,6 +10,7 @@ const ProfileScreen = () => {
   const [user, setUser] = useState(null);
   const [wishlist, setWishlist] = useState([]);
   const [joined, setJoined] = useState([]);
+  const [finishedCount, setFinishedCount] = useState(0);
 
   useEffect(() => {
     apiFetch('/api/v1/auth/me')
@@ -17,14 +18,18 @@ const ProfileScreen = () => {
       .catch(() => setUser(null));
     setWishlist(loadWishlist());
     apiFetch('/api/v1/posts/mine')
-      .then((data) => setJoined(data || []))
-      .catch(() => setJoined([]));
+      .then((data) => {
+        const all = data || [];
+        const finished = all.filter((p) => (p.status || '모집 중') === '종료').length;
+        const active = all.filter((p) => (p.status || '모집 중') !== '종료');
+        setFinishedCount(finished);
+        setJoined(active);
+      })
+      .catch(() => {
+        setFinishedCount(0);
+        setJoined([]);
+      });
   }, []);
-
-  const finishedCount = React.useMemo(
-    () => joined.filter((item) => (item.status || '') === '종료').length,
-    [joined],
-  );
 
   const initial = user?.display_name?.[0] || user?.email?.[0] || '?';
   const statusColors = {
@@ -107,17 +112,27 @@ const ProfileScreen = () => {
             >
               <div
                 style={{
-                  width: 50,
-                  height: 50,
+                  width: 56,
+                  height: 56,
                   borderRadius: 12,
-                  background: '#f36f72',
-                  color: 'white',
+                  background: item.image_url ? 'transparent' : '#f9f9f9',
+                  overflow: 'hidden',
+                  border: '1px solid #f36f72',
                   display: 'grid',
                   placeItems: 'center',
                   fontWeight: 900,
+                  color: '#f36f72',
                 }}
               >
-                {item.title?.slice(0, 2) || '놀이'}
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  item.title?.slice(0, 2) || '놀이'
+                )}
               </div>
                 <div style={{ flex: 1 }}>
                   <div>{item.title}</div>

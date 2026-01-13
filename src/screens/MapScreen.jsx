@@ -147,7 +147,14 @@ const MapScreen = () => {
         minHeight: '100vh',
       }}
     >
-      <div style={{ flex: 1, position: 'relative', padding: '12px 12px 70px' }}>
+      <div
+        style={{
+          position: 'relative',
+          padding: '12px 12px 70px',
+          height: '80vh',
+          minHeight: 360,
+        }}
+      >
         <div
           className="map-panel"
           style={{
@@ -156,6 +163,7 @@ const MapScreen = () => {
             borderRadius: 18,
             overflow: 'hidden',
             boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+            zIndex: 1,
           }}
         >
           <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
@@ -179,6 +187,8 @@ const MapScreen = () => {
             borderRadius: 12,
             boxShadow: '0 6px 14px rgba(0,0,0,0.12)',
             whiteSpace: 'nowrap',
+            zIndex: 999,
+            pointerEvents: 'none',
           }}
         >
           {toastText}
