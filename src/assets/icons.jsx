@@ -80,9 +80,10 @@ export const LocationIcon = ({ size = 18, color = '#f36f72' }) => (
 export const HeartIcon = ({ size = 20, color = '#f36f72' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <path
-      d="M12 20s-7-4.5-7-10a4.5 4.5 0 0 1 8-2.6A4.5 4.5 0 0 1 19 10c0 5.5-7 10-7 10z"
+      d="M12 21s-6.5-4.2-9-8.5C1 8.5 3.5 5 7 5c1.8 0 3.6 1 5 2.8C13.4 6 15.2 5 17 5c3.5 0 6 3.5 4 7.5-2.5 4.3-9 8.5-9 8.5z"
       stroke={color}
       strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
     />
   </svg>
