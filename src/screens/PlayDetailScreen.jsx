@@ -61,16 +61,19 @@ const PlayDetailScreen = () => {
             position: 'absolute',
             top: 14,
             left: 14,
-            background: 'rgba(0,0,0,0.08)',
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
             border: 'none',
-            borderRadius: 999,
-            padding: '8px 10px',
-            color: '#2b2b2b',
-            fontSize: 14,
+            background: 'rgba(255,255,255,0.92)',
+            boxShadow: '0 6px 14px rgba(0,0,0,0.18)',
+            display: 'grid',
+            placeItems: 'center',
             cursor: 'pointer',
           }}
+          aria-label="뒤로가기"
         >
-          ←
+          <span style={{ fontSize: 18, fontWeight: 800, color: '#f36f72' }}>←</span>
         </button>
         <div
           style={{

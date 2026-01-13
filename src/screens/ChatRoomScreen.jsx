@@ -304,7 +304,7 @@ const ChatRoomScreen = () => {
           aria-label="AI 요약"
           disabled={summaryLoading}
         >
-          <img src={aiLogo} alt="AI" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+            <img src={aiLogo} alt="AI" style={{ width: 40, height: 40, objectFit: 'contain' }} />
         </button>
         <input
           placeholder=""

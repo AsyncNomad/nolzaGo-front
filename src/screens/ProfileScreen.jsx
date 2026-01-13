@@ -22,6 +22,13 @@ const ProfileScreen = () => {
   }, []);
 
   const initial = user?.display_name?.[0] || user?.email?.[0] || '?';
+  const statusColors = {
+    '모집 중': { text: '#24a148', border: '#24a148', bg: '#e7f6ed' },
+    '모집 마감': { text: '#caa300', border: '#caa300', bg: '#fff4d6' },
+    '놀이 진행 중': { text: '#e74c3c', border: '#e74c3c', bg: '#fde2df' },
+    종료: { text: '#777', border: '#d0d0d0', bg: '#f5f5f5' },
+  };
+  const getStatusStyle = (status) => statusColors[status] || statusColors['모집 중'];
 
   return (
     <div
@@ -107,11 +114,23 @@ const ProfileScreen = () => {
               >
                 {item.title?.slice(0, 2) || '놀이'}
               </div>
-              <div style={{ flex: 1 }}>
-                <div>{item.title}</div>
-                <div style={{ fontSize: 12, color: '#777' }}>{item.location_name || '장소 미정'}</div>
+                <div style={{ flex: 1 }}>
+                  <div>{item.title}</div>
+                  <div style={{ fontSize: 12, color: '#777' }}>{item.location_name || '장소 미정'}</div>
+                </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: getStatusStyle(item.status || '모집 중').text,
+                  border: `1px solid ${getStatusStyle(item.status || '모집 중').border}`,
+                  background: getStatusStyle(item.status || '모집 중').bg,
+                  borderRadius: 8,
+                  padding: '4px 8px',
+                  fontWeight: 700,
+                }}
+              >
+                {item.status || '모집 중'}
               </div>
-              <div style={{ fontSize: 12, color: '#f36f72' }}>{item.status || '모집 중'}</div>
             </div>
           ))
         )}

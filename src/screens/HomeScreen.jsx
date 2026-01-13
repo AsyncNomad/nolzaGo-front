@@ -8,6 +8,14 @@ import { apiFetch } from '../api/client';
 import { loadWishlist, saveWishlist, isWishlisted } from '../api/wishlist';
 
 const STATUS_OPTIONS = ['모집 중', '모집 마감', '놀이 진행 중', '종료'];
+const statusColors = {
+  '모집 중': { text: '#24a148', border: '#24a148', bg: '#e7f6ed' },
+  '모집 마감': { text: '#caa300', border: '#caa300', bg: '#fff4d6' },
+  '놀이 진행 중': { text: '#e74c3c', border: '#e74c3c', bg: '#fde2df' },
+  종료: { text: '#777', border: '#d0d0d0', bg: '#f5f5f5' },
+};
+
+const getStatusStyle = (status) => statusColors[status] || statusColors['모집 중'];
 
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -169,9 +177,9 @@ const HomeScreen = () => {
                       <span
                         className="pill"
                         style={{
-                          borderColor: '#d0d0d0',
-                          color: '#555',
-                          background: '#f5f5f5',
+                          borderColor: getStatusStyle(post.status || '모집 중').border,
+                          color: getStatusStyle(post.status || '모집 중').text,
+                          background: getStatusStyle(post.status || '모집 중').bg,
                         }}
                       >
                         {post.status || '모집 중'}

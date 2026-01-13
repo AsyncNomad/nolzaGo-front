@@ -5,6 +5,14 @@ import { apiFetch } from '../api/client';
 import ImagePreview from '../components/ImagePreview';
 import MockImage from '../components/MockImage';
 
+const statusColors = {
+  '모집 중': { text: '#24a148', border: '#24a148', bg: '#e7f6ed' },
+  '모집 마감': { text: '#caa300', border: '#caa300', bg: '#fff4d6' },
+  '놀이 진행 중': { text: '#e74c3c', border: '#e74c3c', bg: '#fde2df' },
+  종료: { text: '#777', border: '#d0d0d0', bg: '#f5f5f5' },
+};
+const getStatusStyle = (status) => statusColors[status] || statusColors['모집 중'];
+
 const ChatListScreen = () => {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
@@ -54,7 +62,14 @@ const ChatListScreen = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ fontWeight: 800, fontSize: 14 }}>{room.title}</div>
                   <div style={{ fontSize: 12, color: '#777', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span className="pill" style={{ borderColor: '#d0d0d0', color: '#555', background: '#f5f5f5' }}>
+                    <span
+                      className="pill"
+                      style={{
+                        borderColor: getStatusStyle(room.status || '모집 중').border,
+                        color: getStatusStyle(room.status || '모집 중').text,
+                        background: getStatusStyle(room.status || '모집 중').bg,
+                      }}
+                    >
                       {room.status || '모집 중'}
                     </span>
                     <span>{room.location_name || '장소 미정'}</span>
