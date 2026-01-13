@@ -1,5 +1,14 @@
 {
-  "appId": "com.example.app",
-  "appName": "놀자Go",
-  "webDir": "dist"
+  "appId": "com.nolzago.app",
+  "appName": "nolzaGo",
+  "webDir": "dist",
+  "server": {
+    "allowNavigation": [
+      "nolzago.sbserver.store",
+      "*.kakao.com",
+      "*.daum.net",
+      "*.daumcdn.net",
+      "*.kakaocdn.net"
+    ]
+  }
 }

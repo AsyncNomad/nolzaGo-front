@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BackIcon, SendIcon } from '../assets/icons';
-import { apiFetch, getToken } from '../api/client';
+import { apiFetch, API_BASE, getToken } from '../api/client';
 import aiLogo from '../assets/ailogo.png';
 
 const statusColors = {
@@ -47,7 +47,7 @@ const ChatRoomScreen = () => {
       : '일정 미정';
 
   const wsUrl = useMemo(() => {
-    const base = window.location.origin.replace(/^http/, 'ws');
+    const base = API_BASE.replace(/^http/, 'ws');
     return `${base}/api/v1/posts/${postId}/chat/ws?token=${getToken()}`;
   }, [postId]);
 
