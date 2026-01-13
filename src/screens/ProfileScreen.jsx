@@ -24,7 +24,10 @@ const ProfileScreen = () => {
   const initial = user?.display_name?.[0] || user?.email?.[0] || '?';
 
   return (
-    <div className="mobile-shell light-panel" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div
+      className="mobile-shell light-panel"
+      style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 110 }}
+    >
       <div style={{ padding: '16px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div
