@@ -23,7 +23,8 @@ const ChatListScreen = () => {
     apiFetch('/api/v1/posts/mine')
       .then((data) => {
         if (!mounted) return;
-        setRooms(data || []);
+        const sorted = (data || []).slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setRooms(sorted);
       })
       .catch((err) => {
         console.error(err);

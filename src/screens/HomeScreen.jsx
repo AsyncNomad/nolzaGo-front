@@ -37,9 +37,10 @@ const HomeScreen = () => {
         setLocationName(user?.location_name || '동네 인증 대기');
         const fetched = await apiFetch('/api/v1/posts');
         if (!mounted) return;
-        setPosts(fetched || []);
+        const sorted = (fetched || []).slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setPosts(sorted);
         // 서버의 is_liked 정보를 기준으로 위시리스트 동기화
-        const serverLiked = (fetched || []).filter((p) => p.is_liked);
+        const serverLiked = (sorted || []).filter((p) => p.is_liked);
         setWishlist(serverLiked);
       } catch (err) {
         console.error(err);

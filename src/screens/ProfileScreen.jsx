@@ -40,6 +40,28 @@ const ProfileScreen = () => {
   };
   const getStatusStyle = (status) => statusColors[status] || statusColors['모집 중'];
 
+  const upcoming = (() => {
+    const now = new Date();
+    const THREE_HOURS = 3 * 60 * 60 * 1000;
+    return (joined || [])
+      .filter((p) => p.start_time)
+      .map((p) => {
+        const start = new Date(p.start_time);
+        const diff = start.getTime() - now.getTime();
+        if (diff <= 0 || diff > THREE_HOURS) return null;
+        const hours = Math.floor(diff / (60 * 60 * 1000));
+        const minutes = Math.round((diff % (60 * 60 * 1000)) / (60 * 1000));
+        return {
+          id: p.id,
+          title: p.title,
+          location: p.location_name || '장소 미정',
+          hours,
+          minutes,
+        };
+      })
+      .filter(Boolean);
+  })();
+
   return (
     <div
       className="mobile-shell light-panel"
@@ -76,6 +98,29 @@ const ProfileScreen = () => {
             <div style={{ fontSize: 13, color: '#888' }}>{user?.location_name || '동네 인증 대기'}</div>
           </div>
         </div>
+        {upcoming.length > 0 ? (
+          <div
+            style={{
+              marginBottom: 12,
+              background: '#fff7f2',
+              border: '1px solid #f6c4a6',
+              borderRadius: 12,
+              padding: '12px 12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+            }}
+          >
+            <div style={{ fontWeight: 900, fontSize: 15, color: '#e26f39' }}>알림</div>
+            {upcoming.map((n) => (
+              <div key={n.id} style={{ fontSize: 13, color: '#5a4a41', lineHeight: 1.4 }}>
+                <strong>{n.title}</strong> 일정이 {n.location}에서{' '}
+                {n.hours > 0 ? `${n.hours}시간 ` : ''}
+                {`${n.minutes}분`} 후 시작해요.
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div style={{ fontWeight: 900, fontSize: 18, marginBottom: 10 }}>참여중인 놀이</div>
         {joined.length === 0 ? (
           <div
