@@ -7,6 +7,8 @@ import { HeartIcon, LocationIcon } from '../assets/icons';
 import { apiFetch } from '../api/client';
 import { loadWishlist, saveWishlist, isWishlisted } from '../api/wishlist';
 
+const STATUS_OPTIONS = ['모집 중', '모집 마감', '놀이 진행 중', '종료'];
+
 const HomeScreen = () => {
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState('동네 인증 대기');
@@ -14,6 +16,8 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [wishlist, setWishlist] = useState([]);
+  const [showFilter, setShowFilter] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState(['모집 중']);
 
   useEffect(() => {
     let mounted = true;
@@ -42,9 +46,85 @@ const HomeScreen = () => {
     };
   }, []);
 
+  const filteredPosts = React.useMemo(() => {
+    const activeStatuses = selectedStatuses.length ? selectedStatuses : ['모집 중'];
+    return (posts || []).filter((post) => activeStatuses.includes(post.status || '모집 중'));
+  }, [posts, selectedStatuses]);
+
+  const toggleStatus = (status) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
+    );
+  };
+
   return (
     <div className="mobile-shell light-panel" style={{ paddingBottom: 90, position: 'relative' }}>
-      <div style={{ padding: '18px 16px 8px', fontSize: 20, fontWeight: 900 }}>{locationName}</div>
+      <div
+        style={{
+          padding: '18px 16px 8px',
+          fontSize: 20,
+          fontWeight: 900,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          position: 'relative',
+          gap: 12,
+        }}
+      >
+        <span>{locationName}</span>
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            onClick={() => setShowFilter((prev) => !prev)}
+            style={{
+              border: '1px solid #e0e0e0',
+              background: '#fff',
+              borderRadius: 999,
+              padding: '6px 12px',
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#444',
+              cursor: 'pointer',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+            }}
+          >
+            진행 상태 필터
+          </button>
+          {showFilter && (
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                marginTop: 8,
+                background: '#fff',
+                border: '1px solid #e7e7e7',
+                borderRadius: 12,
+                padding: 12,
+                boxShadow: '0 10px 20px rgba(0,0,0,0.12)',
+                minWidth: 200,
+                zIndex: 20,
+              }}
+            >
+              <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>진행 상태</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {STATUS_OPTIONS.map((status) => (
+                  <label
+                    key={status}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedStatuses.includes(status)}
+                      onChange={() => toggleStatus(status)}
+                    />
+                    <span>{status}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
       <div className="panel" style={{ paddingTop: 6 }}>
         {loading ? (
           <div style={{ padding: '20px 12px', textAlign: 'center', color: '#888' }}>불러오는 중...</div>
@@ -52,9 +132,13 @@ const HomeScreen = () => {
           <div style={{ padding: '20px 12px', textAlign: 'center', color: '#c75f63', fontWeight: 700 }}>{error}</div>
         ) : posts.length === 0 ? (
           <div style={{ padding: '20px 12px', textAlign: 'center', color: '#888' }}>아직 이 동네에 모집글이 없어요.</div>
+        ) : filteredPosts.length === 0 ? (
+          <div style={{ padding: '20px 12px', textAlign: 'center', color: '#888' }}>
+            선택한 상태의 모집글이 없어요.
+          </div>
         ) : (
           <div className="list-card">
-            {posts.map((post) => (
+            {filteredPosts.map((post) => (
               <div
                 className="list-item"
                 key={post.id || post.title}
