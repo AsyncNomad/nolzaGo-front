@@ -75,16 +75,38 @@ const ChatRoomScreen = () => {
     ws.onmessage = (evt) => {
       try {
         const payload = JSON.parse(evt.data);
-        setMessages((prev) => [
-          ...prev,
-          {
-            user_id: payload.userId,
-            user_display_name: payload.userDisplayName,
-            user_profile_image_url: payload.userProfileImageUrl,
-            content: payload.content,
-            created_at: payload.createdAt,
-          },
-        ]);
+        if (payload.type === 'history' && Array.isArray(payload.messages)) {
+          setMessages(
+            payload.messages.map((m) => ({
+              user_id: m.userId,
+              user_display_name: m.userDisplayName,
+              user_profile_image_url: m.userProfileImageUrl,
+              content: m.content,
+              created_at: m.createdAt,
+              system: m.system || m.type === 'system',
+            })),
+          );
+        } else if (payload.type === 'system') {
+          setMessages((prev) => [
+            ...prev,
+            {
+              content: payload.content,
+              created_at: payload.createdAt,
+              system: true,
+            },
+          ]);
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              user_id: payload.userId,
+              user_display_name: payload.userDisplayName,
+              user_profile_image_url: payload.userProfileImageUrl,
+              content: payload.content,
+              created_at: payload.createdAt,
+            },
+          ]);
+        }
       } catch (_) {
         // ignore
       }
@@ -226,6 +248,13 @@ const ChatRoomScreen = () => {
             const mine = myId && msg.user_id === myId;
             const timeText = formatTime(msg.created_at);
             const name = msg.user_display_name || (mine ? '나' : '참여자');
+            if (msg.system) {
+              return (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ fontSize: 11, color: '#999' }}>{msg.content}</div>
+                </div>
+              );
+            }
             return (
               <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {mine ? (
