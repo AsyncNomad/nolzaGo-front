@@ -51,6 +51,13 @@ const ChatRoomScreen = () => {
     return `${base}/api/v1/posts/${postId}/chat/ws?token=${getToken()}`;
   }, [postId]);
 
+  const sortMessages = (arr) =>
+    [...arr].sort((a, b) => {
+      const da = new Date(a.created_at || a.createdAt || 0).getTime();
+      const db = new Date(b.created_at || b.createdAt || 0).getTime();
+      return da - db;
+    });
+
   useEffect(() => {
     let mounted = true;
     apiFetch('/api/v1/auth/me')
@@ -77,35 +84,33 @@ const ChatRoomScreen = () => {
         const payload = JSON.parse(evt.data);
         if (payload.type === 'history' && Array.isArray(payload.messages)) {
           setMessages(
-            payload.messages.map((m) => ({
-              user_id: m.userId,
-              user_display_name: m.userDisplayName,
-              user_profile_image_url: m.userProfileImageUrl,
-              content: m.content,
-              created_at: m.createdAt,
-              system: m.system || m.type === 'system',
-            })),
+            sortMessages(
+              payload.messages.map((m) => ({
+                user_id: m.userId,
+                user_display_name: m.userDisplayName,
+                user_profile_image_url: m.userProfileImageUrl,
+                content: m.content,
+                created_at: m.createdAt,
+                system: m.system || m.type === 'system',
+              })),
+            ),
           );
         } else if (payload.type === 'system') {
-          setMessages((prev) => [
-            ...prev,
-            {
-              content: payload.content,
-              created_at: payload.createdAt,
-              system: true,
-            },
-          ]);
+          const sysMsg = {
+            content: payload.content,
+            created_at: payload.createdAt,
+            system: true,
+          };
+          setMessages((prev) => sortMessages([...prev, sysMsg]));
         } else {
-          setMessages((prev) => [
-            ...prev,
-            {
-              user_id: payload.userId,
-              user_display_name: payload.userDisplayName,
-              user_profile_image_url: payload.userProfileImageUrl,
-              content: payload.content,
-              created_at: payload.createdAt,
-            },
-          ]);
+          const chatMsg = {
+            user_id: payload.userId,
+            user_display_name: payload.userDisplayName,
+            user_profile_image_url: payload.userProfileImageUrl,
+            content: payload.content,
+            created_at: payload.createdAt,
+          };
+          setMessages((prev) => sortMessages([...prev, chatMsg]));
         }
       } catch (_) {
         // ignore
@@ -178,7 +183,7 @@ const ChatRoomScreen = () => {
               padding: 14,
               boxShadow: '0 6px 14px rgba(0,0,0,0.06)',
               display: 'grid',
-              gridTemplateColumns: '60px 1fr',
+              gridTemplateColumns: '72px 1fr',
               gap: 12,
               alignItems: 'center',
               position: 'sticky',
@@ -189,9 +194,10 @@ const ChatRoomScreen = () => {
           >
             <div
               style={{
-                width: 60,
-                height: 60,
-                borderRadius: 12,
+                width: 72,
+                height: 72,
+                borderRadius: 14,
+                overflow: 'hidden',
                 background: 'linear-gradient(135deg,#c6d5ff,#f7bfd8)',
                 display: 'grid',
                 placeItems: 'center',
@@ -200,13 +206,20 @@ const ChatRoomScreen = () => {
                 fontSize: 14,
               }}
             >
-              {post.title?.slice(0, 4) || '놀이팟'}
+              {post.image_url ? (
+                <img
+                  src={post.image_url}
+                  alt="대표 이미지"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                post.title?.slice(0, 4) || '놀이팟'
+              )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <div style={{ fontWeight: 900, fontSize: 14 }}>{post.title}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6e6e6e' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>{formatDate(post.start_time)}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <div style={{ fontWeight: 900, fontSize: 14, flex: 1 }}>{post.title}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                   <span
                     className="pill"
                     style={{
@@ -220,7 +233,27 @@ const ChatRoomScreen = () => {
                   >
                     {post.status || '모집 중'}
                   </span>
-                </span>
+                  <span
+                    style={{
+                      background: '#f4f5f7',
+                      borderRadius: 10,
+                      padding: '2px 8px',
+                      fontWeight: 800,
+                      color: '#555',
+                    }}
+                  >
+                    {`${Math.max(1, post.participants_count || 1)}/${post.max_participants || 0}`}
+                  </span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: '#6e6e6e' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span>일정: {formatDate(post.start_time)}</span>
+                  <span style={{ color: '#888' }}>{formatTime(post.start_time)}</span>
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: '#5b5b5b' }}>
+                장소: {post.location_name || '장소 미정'}
               </div>
               {post.description ? (
                 <div style={{ fontSize: 12, color: '#3c3c3c', lineHeight: 1.4, whiteSpace: 'pre-line' }}>
