@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
 import MockImage from '../components/MockImage';
 import ImagePreview from '../components/ImagePreview';
 import { apiFetch, API_BASE, getToken } from '../api/client';
-
-const mockPlays = [];
 
 const MemoriesCreateScreen = () => {
   const navigate = useNavigate();
@@ -14,7 +12,7 @@ const MemoriesCreateScreen = () => {
   const editingMemory = state?.memory;
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [selectedPlay, setSelectedPlay] = useState(null);
-  const plays = useMemo(() => mockPlays, []);
+  const [plays, setPlays] = useState([]);
   const [title, setTitle] = useState(editingMemory?.title || '');
   const [content, setContent] = useState(editingMemory?.content || '');
   const [imageUrl, setImageUrl] = useState(editingMemory?.image_url || '');
@@ -22,7 +20,21 @@ const MemoriesCreateScreen = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (editingMemory?.location_name) {
+    apiFetch('/api/v1/posts/mine')
+      .then((data) => setPlays((data || []).filter((p) => (p.status || '') === '종료')))
+      .catch(() => setPlays([]));
+  }, []);
+
+  useEffect(() => {
+    if (editingMemory?.origin_post_id) {
+      setSelectedPlay({
+        id: editingMemory.origin_post_id,
+        title: editingMemory.origin_post_title || editingMemory.location_name || '선택된 모집글',
+        status: editingMemory.origin_post_status || '종료',
+        image_url: editingMemory.image_url,
+        location_name: editingMemory.location_name,
+      });
+    } else if (editingMemory?.location_name) {
       setSelectedPlay({ title: editingMemory.location_name, host: '' });
     }
   }, [editingMemory]);
@@ -80,7 +92,11 @@ const MemoriesCreateScreen = () => {
             }}
           >
             {selectedPlay ? (
-              <MockImage label={selectedPlay.title.slice(0, 4)} size={64} corner={12} />
+              selectedPlay.image_url ? (
+                <ImagePreview url={selectedPlay.image_url} size={64} corner={12} />
+              ) : (
+                <MockImage label={selectedPlay.title.slice(0, 4)} size={64} corner={12} />
+              )
             ) : (
               <div
                 style={{
@@ -221,6 +237,7 @@ const MemoriesCreateScreen = () => {
                     content,
                     image_url: imageUrl || null,
                     location_name: selectedPlay ? selectedPlay.title : null,
+                    origin_post_id: selectedPlay?.id || null,
                   }),
                 });
                 alert('추억을 수정했어요.');
@@ -233,6 +250,7 @@ const MemoriesCreateScreen = () => {
                     content,
                     image_url: imageUrl || null,
                     location_name: selectedPlay ? selectedPlay.title : null,
+                    origin_post_id: selectedPlay?.id || null,
                   }),
                 });
                 alert('추억이 등록되었어요.');
@@ -283,7 +301,7 @@ const MemoriesCreateScreen = () => {
             ) : (
               plays.map((play) => (
                 <button
-                  key={play.title}
+                  key={play.id || play.title}
                   onClick={() => {
                     setSelectedPlay(play);
                     setSelectorOpen(false);
@@ -302,10 +320,17 @@ const MemoriesCreateScreen = () => {
                     textAlign: 'left',
                   }}
                 >
-                  <MockImage label={play.imageLabel} size={64} corner={12} />
+                  {play.image_url ? (
+                    <ImagePreview url={play.image_url} size={64} corner={12} />
+                  ) : (
+                    <MockImage label={(play.title || '').slice(0, 4)} size={64} corner={12} />
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <div style={{ fontWeight: 800, fontSize: 14 }}>{play.title}</div>
-                    <div style={{ fontSize: 12, color: '#7d7d7d' }}>{play.host}</div>
+                    <div style={{ fontSize: 12, color: '#7d7d7d' }}>{play.location_name || play.host}</div>
+                    {play.status && (
+                      <div style={{ fontSize: 11, color: '#c75f63', fontWeight: 700 }}>{play.status}</div>
+                    )}
                   </div>
                 </button>
               ))

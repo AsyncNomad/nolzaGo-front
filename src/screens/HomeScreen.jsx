@@ -26,6 +26,7 @@ const HomeScreen = () => {
   const [wishlist, setWishlist] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState(['모집 중']);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -56,8 +57,10 @@ const HomeScreen = () => {
 
   const filteredPosts = React.useMemo(() => {
     const activeStatuses = selectedStatuses.length ? selectedStatuses : ['모집 중'];
-    return (posts || []).filter((post) => activeStatuses.includes(post.status || '모집 중'));
-  }, [posts, selectedStatuses]);
+    return (posts || [])
+      .filter((post) => activeStatuses.includes(post.status || '모집 중'))
+      .filter((post) => (post.title || '').toLowerCase().includes(search.trim().toLowerCase()));
+  }, [posts, selectedStatuses, search]);
 
   const toggleStatus = (status) => {
     setSelectedStatuses((prev) =>
@@ -80,6 +83,25 @@ const HomeScreen = () => {
         }}
       >
         <span>{locationName}</span>
+        <div style={{ flex: 1, maxWidth: 200 }}>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="모집글 제목 검색"
+            style={{
+              width: '100%',
+              border: '1px solid #e0e0e0',
+              borderRadius: 999,
+              padding: '6px 12px',
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#444',
+              outline: 'none',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+            }}
+          />
+        </div>
         <div style={{ position: 'relative' }}>
           <button
             type="button"

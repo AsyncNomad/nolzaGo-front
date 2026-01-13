@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../api/client';
+import MockImage from '../components/MockImage';
 
 const MemoriesDetailScreen = () => {
   const navigate = useNavigate();
@@ -50,6 +51,12 @@ const MemoriesDetailScreen = () => {
     : '날짜 미정';
   const authorName = memory.owner?.display_name || 'user';
   const isOwner = me?.id && memory.owner?.id && me.id === memory.owner.id;
+  const statusColors = {
+    '모집 중': '#24a148',
+    '모집 마감': '#caa300',
+    '놀이 진행 중': '#e74c3c',
+    종료: '#777',
+  };
 
   return (
     <div className="mobile-shell" style={{ background: 'white', color: '#2b2b2b', display: 'flex', flexDirection: 'column' }}>
@@ -102,9 +109,6 @@ const MemoriesDetailScreen = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontWeight: 800, fontSize: 16 }}>{memory.title || '추억 제목'}</div>
-            <div style={{ fontSize: 13, color: '#6f6f6f', marginTop: 4 }}>
-              {memory.location_name || '기록된 장소 없음'}
-            </div>
           </div>
           <div style={{ textAlign: 'right', fontSize: 12, color: '#888' }}>{createdText}</div>
         </div>
@@ -150,6 +154,48 @@ const MemoriesDetailScreen = () => {
           </div>
         )}
       </div>
+
+      {memory.origin_post_title && (
+        <div
+          style={{
+            margin: '12px 16px 0',
+            padding: '10px 12px',
+            borderRadius: 12,
+            border: '1px solid #e6b8b8',
+            background: '#fffaf9',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+          }}
+        >
+          <div style={{ width: 46, height: 46 }}>
+            <MockImage label={memory.origin_post_title.slice(0, 2)} size={46} corner={12} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 800, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {memory.origin_post_title}
+            </div>
+            <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+              {memory.location_name || '장소 정보 없음'}
+            </div>
+          </div>
+          {memory.origin_post_status && (
+            <span
+              style={{
+                padding: '6px 10px',
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 800,
+                color: statusColors[memory.origin_post_status] ? statusColors[memory.origin_post_status] : '#555',
+                border: `1px solid ${statusColors[memory.origin_post_status] || '#d0d0d0'}`,
+                background: '#fff',
+              }}
+            >
+              {memory.origin_post_status}
+            </span>
+          )}
+        </div>
+      )}
 
       <div style={{ padding: '16px', flex: 1, background: 'white', color: '#2b2b2b' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>

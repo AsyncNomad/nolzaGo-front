@@ -92,14 +92,20 @@ const JoinedPlaysScreen = () => {
                       width: 56,
                       height: 56,
                       borderRadius: 12,
-                      background: '#f36f72',
-                      color: 'white',
+                      background: item.image_url ? 'transparent' : '#f36f72',
+                      color: item.image_url ? 'transparent' : 'white',
                       display: 'grid',
                       placeItems: 'center',
                       fontWeight: 900,
+                      overflow: 'hidden',
+                      border: item.image_url ? '1px solid #f36f72' : 'none',
                     }}
                   >
-                    {item.title?.slice(0, 2) || '놀이'}
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      item.title?.slice(0, 2) || '놀이'
+                    )}
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <div style={{ fontWeight: 900, fontSize: 15 }}>{item.title}</div>
