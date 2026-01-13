@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
 import { apiFetch, API_BASE, getToken } from '../api/client';
 import { loadKakaoSdk } from '../utils/kakao';
+import { getCurrentPosition } from '../utils/geo';
 import ImagePreview from '../components/ImagePreview';
 
 const minuteOptions = ['00', '10', '20', '30', '40', '50'];
@@ -69,17 +70,13 @@ const CreatePlayScreen = () => {
         center: defaultCenter,
         level: 4,
       });
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const center = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-            map.setCenter(center);
-            map.setLevel(4);
-          },
-          () => {},
-          { enableHighAccuracy: true, timeout: 8000 },
-        );
-      }
+      getCurrentPosition({ enableHighAccuracy: true, timeout: 20000, maximumAge: 0 })
+        .then((pos) => {
+          const center = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+          map.setCenter(center);
+          map.setLevel(4);
+        })
+        .catch(() => {});
       mapRef.current._mapInstance = map;
       setMapReady(true);
     } catch (err) {

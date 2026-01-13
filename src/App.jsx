@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Geolocation } from '@capacitor/geolocation';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -17,6 +18,17 @@ import EditPlayScreen from './screens/EditPlayScreen';
 import JoinedPlaysScreen from './screens/JoinedPlaysScreen';
 
 const App = () => {
+  useEffect(() => {
+    const requestLocation = async () => {
+      try {
+        await Geolocation.requestPermissions({ permissions: ['location'] });
+      } catch (_) {
+        // ignore - fall back to browser permission prompt when needed
+      }
+    };
+    requestLocation();
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />

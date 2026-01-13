@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BackIcon } from '../assets/icons';
 import { loadKakaoSdk } from '../utils/kakao';
+import { getCurrentPosition } from '../utils/geo';
 import { apiFetch, API_BASE, setToken } from '../api/client';
 
 const LocationConfirmScreen = () => {
@@ -25,33 +26,27 @@ const LocationConfirmScreen = () => {
           marker = new kakao.maps.Marker({ position: defaultPos, map });
           setMapReady(true);
 
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                const { latitude, longitude } = pos.coords;
-                const locPosition = new kakao.maps.LatLng(latitude, longitude);
-                map.setCenter(locPosition);
-                map.setLevel(4);
-                marker.setPosition(locPosition);
+          getCurrentPosition({ enableHighAccuracy: true, timeout: 20000, maximumAge: 0 })
+            .then((pos) => {
+              const { latitude, longitude } = pos.coords;
+              const locPosition = new kakao.maps.LatLng(latitude, longitude);
+              map.setCenter(locPosition);
+              map.setLevel(4);
+              marker.setPosition(locPosition);
 
-                const geocoder = new kakao.maps.services.Geocoder();
-                geocoder.coord2RegionCode(longitude, latitude, (result, status) => {
-                  if (status === kakao.maps.services.Status.OK && result.length > 0) {
-                    const region = result.find((r) => r.region_type === 'H') || result[0];
-                    const locText = `${region.region_2depth_name} ${region.region_3depth_name}`;
-                    setRawLocation(locText);
-                    setLocationName(`${locText}으로 설정할게요.`);
-                  } else {
-                    setLocationName('동네 인식 실패');
-                  }
-                });
-              },
-              () => setLocationName('위치 권한을 허용해주세요.'),
-              { enableHighAccuracy: true, timeout: 8000 },
-            );
-          } else {
-            setLocationName('위치 정보를 지원하지 않는 브라우저입니다.');
-          }
+              const geocoder = new kakao.maps.services.Geocoder();
+              geocoder.coord2RegionCode(longitude, latitude, (result, status) => {
+                if (status === kakao.maps.services.Status.OK && result.length > 0) {
+                  const region = result.find((r) => r.region_type === 'H') || result[0];
+                  const locText = `${region.region_2depth_name} ${region.region_3depth_name}`;
+                  setRawLocation(locText);
+                  setLocationName(`${locText}으로 설정할게요.`);
+                } else {
+                  setLocationName('동네 인식 실패');
+                }
+              });
+            })
+            .catch(() => setLocationName('위치 권한을 허용해주세요.'));
         });
       })
       .catch(() => setLocationName('지도를 불러오지 못했어요.'));

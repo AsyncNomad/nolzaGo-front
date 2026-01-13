@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import { loadKakaoSdk } from '../utils/kakao';
+import { getCurrentPosition } from '../utils/geo';
 import { apiFetch } from '../api/client';
 
 const MapScreen = () => {
@@ -95,29 +96,21 @@ const MapScreen = () => {
           posts = [];
         }
 
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const { latitude, longitude } = pos.coords;
-              const center = new kakao.maps.LatLng(latitude, longitude);
-              map.setCenter(center);
-              map.setLevel(MAP_LEVEL);
-              placeMeMarker(center);
-              applyPosts(posts, center);
-              setMapReady(true);
-            },
-            () => {
-              placeMeMarker(defaultCenter);
-              applyPosts(posts, defaultCenter);
-              setMapReady(true);
-            },
-            { enableHighAccuracy: true, timeout: 8000 },
-          );
-        } else {
-          placeMeMarker(defaultCenter);
-          applyPosts(posts, defaultCenter);
-          setMapReady(true);
-        }
+        getCurrentPosition({ enableHighAccuracy: true, timeout: 20000, maximumAge: 0 })
+          .then((pos) => {
+            const { latitude, longitude } = pos.coords;
+            const center = new kakao.maps.LatLng(latitude, longitude);
+            map.setCenter(center);
+            map.setLevel(MAP_LEVEL);
+            placeMeMarker(center);
+            applyPosts(posts, center);
+            setMapReady(true);
+          })
+          .catch(() => {
+            placeMeMarker(defaultCenter);
+            applyPosts(posts, defaultCenter);
+            setMapReady(true);
+          });
       } catch (err) {
         console.error('kakao map init failed', err);
         setToastText('지도를 불러오는 데 실패했습니다.');

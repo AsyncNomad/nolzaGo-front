@@ -3,6 +3,8 @@
   "appName": "nolzaGo",
   "webDir": "dist",
   "server": {
+    "androidScheme": "https",
+    "hostname": "localhost",
     "allowNavigation": [
       "nolzago.sbserver.store",
       "*.kakao.com",
