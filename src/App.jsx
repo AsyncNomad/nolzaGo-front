@@ -14,6 +14,7 @@ import MemoriesCreateScreen from './screens/MemoriesCreateScreen';
 import MemoriesDetailScreen from './screens/MemoriesDetailScreen';
 import PlayDetailScreen from './screens/PlayDetailScreen';
 import EditPlayScreen from './screens/EditPlayScreen';
+import JoinedPlaysScreen from './screens/JoinedPlaysScreen';
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
       <Route path="/memories/create" element={<MemoriesCreateScreen />} />
       <Route path="/memories/:id" element={<MemoriesDetailScreen />} />
       <Route path="/profile" element={<ProfileScreen />} />
+      <Route path="/joined" element={<JoinedPlaysScreen />} />
       <Route path="/location-confirm" element={<LocationConfirmScreen />} />
       <Route path="/play/:id" element={<PlayDetailScreen />} />
     </Routes>

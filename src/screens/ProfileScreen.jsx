@@ -21,6 +21,11 @@ const ProfileScreen = () => {
       .catch(() => setJoined([]));
   }, []);
 
+  const finishedCount = React.useMemo(
+    () => joined.filter((item) => (item.status || '') === '종료').length,
+    [joined],
+  );
+
   const initial = user?.display_name?.[0] || user?.email?.[0] || '?';
   const statusColors = {
     '모집 중': { text: '#24a148', border: '#24a148', bg: '#e7f6ed' },
@@ -136,7 +141,7 @@ const ProfileScreen = () => {
         )}
         <div style={{ marginTop: 14, borderTop: '1px solid #ededed', paddingTop: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <span style={{ width: 18 }}>♡</span>
+            <span style={{ width: 18 }}>♥</span>
             <span style={{ flex: 1, fontWeight: 700 }}>위시리스트</span>
             <span style={{ color: '#d65c63', fontWeight: 800 }}>({wishlist.length})</span>
           </div>
@@ -204,9 +209,8 @@ const ProfileScreen = () => {
 
         <div style={{ marginTop: 12, borderTop: '1px solid #ededed' }}>
           {[
-            { label: '내가 참여한 놀이', count: 6 },
-            { label: '내 정보' },
-            { label: '로그아웃', action: 'logout' },
+            { label: '내가 참여한 놀이', count: finishedCount, icon: '👤', action: 'joined' },
+            { label: '로그아웃', action: 'logout', icon: '👤' },
           ].map((row) => (
             <div
               key={row.label}
@@ -226,12 +230,16 @@ const ProfileScreen = () => {
                       setUser(null);
                       navigate('/login', { replace: true });
                     }
+                  : row.action === 'joined'
+                  ? () => navigate('/joined')
                   : undefined
               }
             >
-              <span style={{ width: 18 }}>{row.count ? '♡' : '👤'}</span>
+              <span style={{ width: 18 }}>{row.icon || '👤'}</span>
               <span style={{ flex: 1 }}>{row.label}</span>
-              {row.count ? <span style={{ color: '#d65c63', fontWeight: 800 }}>({row.count})</span> : null}
+              {typeof row.count === 'number' ? (
+                <span style={{ color: '#d65c63', fontWeight: 800 }}>({row.count})</span>
+              ) : null}
             </div>
           ))}
         </div>
