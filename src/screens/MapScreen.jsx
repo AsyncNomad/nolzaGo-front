@@ -138,17 +138,51 @@ const MapScreen = () => {
   }, []);
 
   return (
-    <div className="mobile-shell light-panel" style={{ background: '#f7f7f7', display: 'flex', flexDirection: 'column' }}>
-      <div className="map-panel" style={{ margin: '0 14px', borderRadius: 18, height: 440, position: 'relative' }}>
-        <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
-        {!mapReady && (
-          <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#999' }}>
-            지도를 불러오고 있어요...
-          </div>
-        )}
-      </div>
-      <div className="toast" style={{ textAlign: 'center', fontSize: 14, marginTop: 10 }}>
-        {toastText}
+    <div
+      className="mobile-shell light-panel"
+      style={{
+        background: '#f7f7f7',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+      }}
+    >
+      <div style={{ flex: 1, position: 'relative', padding: '12px 12px 70px' }}>
+        <div
+          className="map-panel"
+          style={{
+            position: 'absolute',
+            inset: 12,
+            borderRadius: 18,
+            overflow: 'hidden',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          }}
+        >
+          <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+          {!mapReady && (
+            <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: '#999' }}>
+              지도를 불러오고 있어요...
+            </div>
+          )}
+        </div>
+        <div
+          className="toast"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 16,
+            transform: 'translateX(-50%)',
+            textAlign: 'center',
+            fontSize: 14,
+            background: 'rgba(255,255,255,0.95)',
+            padding: '10px 14px',
+            borderRadius: 12,
+            boxShadow: '0 6px 14px rgba(0,0,0,0.12)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {toastText}
+        </div>
       </div>
       <BottomNav />
     </div>
