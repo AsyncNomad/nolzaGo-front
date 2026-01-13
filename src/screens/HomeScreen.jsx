@@ -76,83 +76,102 @@ const HomeScreen = () => {
           fontSize: 20,
           fontWeight: 900,
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          position: 'relative',
-          gap: 12,
+          gap: 10,
         }}
       >
-        <span>{locationName}</span>
-        <div style={{ flex: 1, maxWidth: 200 }}>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="모집글 제목 검색"
-            style={{
-              width: '100%',
-              border: '1px solid #e0e0e0',
-              borderRadius: 999,
-              padding: '6px 12px',
-              fontSize: 12,
-              fontWeight: 600,
-              color: '#444',
-              outline: 'none',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-            }}
-          />
-        </div>
-        <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            onClick={() => setShowFilter((prev) => !prev)}
-            style={{
-              border: '1px solid #e0e0e0',
-              background: '#fff',
-              borderRadius: 999,
-              padding: '6px 12px',
-              fontSize: 12,
-              fontWeight: 700,
-              color: '#444',
-              cursor: 'pointer',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
-            }}
-          >
-            진행 상태 필터
-          </button>
-          {showFilter && (
-            <div
+        <span style={{ fontSize: 16 }}>{locationName}</span>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && setSearch(e.target.value)}
+              placeholder="모집글 제목 검색"
+              style={{
+                width: '100%',
+                border: '1px solid #e0e0e0',
+                borderRadius: 999,
+                padding: '8px 38px 8px 14px',
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#444',
+                outline: 'none',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setSearch((s) => s)}
               style={{
                 position: 'absolute',
-                right: 0,
-                marginTop: 8,
+                right: 8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                color: '#777',
+                fontSize: 16,
+              }}
+              aria-label="검색"
+            >
+              🔍
+            </button>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => setShowFilter((prev) => !prev)}
+              style={{
+                border: '1px solid #e0e0e0',
                 background: '#fff',
-                border: '1px solid #e7e7e7',
-                borderRadius: 12,
-                padding: 12,
-                boxShadow: '0 10px 20px rgba(0,0,0,0.12)',
-                minWidth: 200,
-                zIndex: 20,
+                borderRadius: 999,
+                padding: '6px 10px',
+                fontSize: 14,
+                fontWeight: 800,
+                color: '#444',
+                cursor: 'pointer',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
               }}
             >
-              <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>진행 상태</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {STATUS_OPTIONS.map((status) => (
-                  <label
-                    key={status}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedStatuses.includes(status)}
-                      onChange={() => toggleStatus(status)}
-                    />
-                    <span>{status}</span>
-                  </label>
-                ))}
+              ⚙️
+            </button>
+            {showFilter && (
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  marginTop: 8,
+                  background: '#fff',
+                  border: '1px solid #e7e7e7',
+                  borderRadius: 12,
+                  padding: 12,
+                  boxShadow: '0 10px 20px rgba(0,0,0,0.12)',
+                  minWidth: 200,
+                  zIndex: 20,
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>진행 상태</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {STATUS_OPTIONS.map((status) => (
+                    <label
+                      key={status}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedStatuses.includes(status)}
+                        onChange={() => toggleStatus(status)}
+                      />
+                      <span>{status}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
       <div className="panel" style={{ paddingTop: 6 }}>
