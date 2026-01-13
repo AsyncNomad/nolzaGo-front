@@ -4,6 +4,14 @@ import { BackIcon, SendIcon } from '../assets/icons';
 import { apiFetch, getToken } from '../api/client';
 import aiLogo from '../assets/ailogo.png';
 
+const statusColors = {
+  '모집 중': { text: '#24a148', border: '#24a148', bg: '#e7f6ed' },
+  '모집 마감': { text: '#caa300', border: '#caa300', bg: '#fff4d6' },
+  '놀이 진행 중': { text: '#e74c3c', border: '#e74c3c', bg: '#fde2df' },
+  종료: { text: '#777', border: '#d0d0d0', bg: '#f5f5f5' },
+};
+const getStatusStyle = (status) => statusColors[status] || statusColors['모집 중'];
+
 const ChatRoomScreen = () => {
   const navigate = useNavigate();
   const { postId } = useParams();
@@ -141,6 +149,7 @@ const ChatRoomScreen = () => {
           }}
         >
           <div
+            onClick={() => navigate(`/play/${encodeURIComponent(post.title)}`, { state: post })}
             style={{
               background: 'white',
               borderRadius: 16,
@@ -153,6 +162,7 @@ const ChatRoomScreen = () => {
               position: 'sticky',
               top: 12,
               zIndex: 3,
+              cursor: 'pointer',
             }}
           >
             <div
@@ -173,8 +183,22 @@ const ChatRoomScreen = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div style={{ fontWeight: 900, fontSize: 14 }}>{post.title}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6e6e6e' }}>
-                <span>{formatDate(post.start_time)}</span>
-                <span>{post.status || '약속 만드는 중'}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>{formatDate(post.start_time)}</span>
+                  <span
+                    className="pill"
+                    style={{
+                      border: `1px solid ${getStatusStyle(post.status || '모집 중').border}`,
+                      color: getStatusStyle(post.status || '모집 중').text,
+                      background: getStatusStyle(post.status || '모집 중').bg,
+                      borderRadius: 999,
+                      padding: '2px 8px',
+                      fontWeight: 800,
+                    }}
+                  >
+                    {post.status || '모집 중'}
+                  </span>
+                </span>
               </div>
               {post.description ? (
                 <div style={{ fontSize: 12, color: '#3c3c3c', lineHeight: 1.4, whiteSpace: 'pre-line' }}>
@@ -201,28 +225,32 @@ const ChatRoomScreen = () => {
           {messages.map((msg, idx) => {
             const mine = myId && msg.user_id === myId;
             const timeText = formatTime(msg.created_at);
+            const name = msg.user_display_name || (mine ? '나' : '참여자');
             return (
               <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {mine ? (
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, justifyContent: 'flex-end' }}>
                     <span style={{ fontSize: 11, color: '#b0b0b0' }}>{timeText}</span>
-                    <div
-                      style={{
-                        background: '#f36f72',
-                        color: 'white',
-                        padding: '10px 12px',
-                        borderRadius: 12,
-                        fontSize: 13,
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                        maxWidth: 260,
-                        whiteSpace: 'pre-line',
-                      }}
-                    >
-                      {msg.content}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                      {/* 내 닉네임은 표시하지 않음 */}
+                      <div
+                        style={{
+                          background: '#f36f72',
+                          color: 'white',
+                          padding: '10px 12px',
+                          borderRadius: 12,
+                          fontSize: 13,
+                          boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                          maxWidth: 260,
+                          whiteSpace: 'pre-line',
+                        }}
+                      >
+                        {msg.content}
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, justifyContent: 'flex-start' }}>
                     <div
                       style={{
                         width: 36,
@@ -254,19 +282,19 @@ const ChatRoomScreen = () => {
                         </div>
                       )}
                     </div>
-                    <div
-                      style={{
-                        background: '#f5f5f5',
-                        padding: '10px 12px',
-                        borderRadius: 10,
-                        fontSize: 13,
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#777', marginBottom: 4 }}>
-                        {msg.user_display_name || '참여자'}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#777' }}>{name}</div>
+                      <div
+                        style={{
+                          background: '#f5f5f5',
+                          padding: '10px 12px',
+                          borderRadius: 10,
+                          fontSize: 13,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                        }}
+                      >
+                        {msg.content}
                       </div>
-                      {msg.content}
                     </div>
                     <span style={{ fontSize: 11, color: '#b0b0b0' }}>{timeText}</span>
                   </div>
