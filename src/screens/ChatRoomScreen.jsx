@@ -50,6 +50,9 @@ const ChatRoomScreen = () => {
     const base = window.location.origin.replace(/^http/, 'ws');
     return `${base}/api/v1/posts/${postId}/chat/ws?token=${getToken()}`;
   }, [postId]);
+  const reconnectTimer = useRef(null);
+  const stopped = useRef(false);
+  const attempts = useRef(0);
 
   const sortMessages = (arr) =>
     [...arr].sort((a, b) => {
@@ -77,49 +80,66 @@ const ChatRoomScreen = () => {
       })
       .catch(() => {});
 
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
-    ws.onmessage = (evt) => {
-      try {
-        const payload = JSON.parse(evt.data);
-        if (payload.type === 'history' && Array.isArray(payload.messages)) {
-          setMessages(
-            sortMessages(
-              payload.messages.map((m) => ({
-                user_id: m.userId,
-                user_display_name: m.userDisplayName,
-                user_profile_image_url: m.userProfileImageUrl,
-                content: m.content,
-                created_at: m.createdAt,
-                system: m.system || m.type === 'system',
-              })),
-            ),
-          );
-        } else if (payload.type === 'system') {
-          const sysMsg = {
-            content: payload.content,
-            created_at: payload.createdAt,
-            system: true,
-          };
-          setMessages((prev) => sortMessages([...prev, sysMsg]));
-        } else {
-          const chatMsg = {
-            user_id: payload.userId,
-            user_display_name: payload.userDisplayName,
-            user_profile_image_url: payload.userProfileImageUrl,
-            content: payload.content,
-            created_at: payload.createdAt,
-          };
-          setMessages((prev) => sortMessages([...prev, chatMsg]));
+    const connect = () => {
+      if (stopped.current) return;
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+      ws.onopen = () => {
+        attempts.current = 0;
+      };
+      ws.onmessage = (evt) => {
+        try {
+          const payload = JSON.parse(evt.data);
+          if (payload.type === 'history' && Array.isArray(payload.messages)) {
+            setMessages(
+              sortMessages(
+                payload.messages.map((m) => ({
+                  user_id: m.userId,
+                  user_display_name: m.userDisplayName,
+                  user_profile_image_url: m.userProfileImageUrl,
+                  content: m.content,
+                  created_at: m.createdAt,
+                  system: m.system || m.type === 'system',
+                })),
+              ),
+            );
+          } else if (payload.type === 'system') {
+            const sysMsg = {
+              content: payload.content,
+              created_at: payload.createdAt,
+              system: true,
+            };
+            setMessages((prev) => sortMessages([...prev, sysMsg]));
+          } else {
+            const chatMsg = {
+              user_id: payload.userId,
+              user_display_name: payload.userDisplayName,
+              user_profile_image_url: payload.userProfileImageUrl,
+              content: payload.content,
+              created_at: payload.createdAt,
+            };
+            setMessages((prev) => sortMessages([...prev, chatMsg]));
+          }
+        } catch (_) {
+          // ignore
         }
-      } catch (_) {
-        // ignore
-      }
+      };
+      ws.onclose = () => {
+        if (stopped.current) return;
+        const delay = Math.min(5000, 1000 * Math.pow(2, attempts.current));
+        attempts.current += 1;
+        reconnectTimer.current = setTimeout(connect, delay);
+      };
+      ws.onerror = () => {
+        ws.close();
+      };
     };
-    ws.onclose = () => {};
+    connect();
     return () => {
       mounted = false;
-      ws.close();
+      stopped.current = true;
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      wsRef.current?.close();
     };
   }, [postId, wsUrl, post]);
 
@@ -259,6 +279,28 @@ const ChatRoomScreen = () => {
                 <div style={{ fontSize: 12, color: '#3c3c3c', lineHeight: 1.4, whiteSpace: 'pre-line' }}>
                   {post.description}
                 </div>
+              ) : null}
+              {post.status === '놀이 진행 중' ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const url = `/play/${postId}/helper`;
+                    window.open(url, '_blank', 'noopener');
+                  }}
+                  style={{
+                    marginTop: 6,
+                    alignSelf: 'flex-start',
+                    borderRadius: 10,
+                    border: '1px solid #f36f72',
+                    background: '#fef2f2',
+                    color: '#d63f46',
+                    padding: '8px 12px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                  }}
+                >
+                  놀이 도우미
+                </button>
               ) : null}
             </div>
           </div>

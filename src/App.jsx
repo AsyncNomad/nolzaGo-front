@@ -15,6 +15,7 @@ import MemoriesDetailScreen from './screens/MemoriesDetailScreen';
 import PlayDetailScreen from './screens/PlayDetailScreen';
 import EditPlayScreen from './screens/EditPlayScreen';
 import JoinedPlaysScreen from './screens/JoinedPlaysScreen';
+import RoleHelperScreen from './screens/RoleHelperScreen';
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
       <Route path="/joined" element={<JoinedPlaysScreen />} />
       <Route path="/location-confirm" element={<LocationConfirmScreen />} />
       <Route path="/play/:id" element={<PlayDetailScreen />} />
+      <Route path="/play/:id/helper" element={<RoleHelperScreen />} />
     </Routes>
   );
 };
